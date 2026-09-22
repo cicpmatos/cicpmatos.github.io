@@ -1,20 +1,18 @@
-/* ========================================
-   CAIO MATOS | PORTFÓLIO
-   ======================================== */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 
 /* ========================================
-   CONFIGURAÇÕES GERAIS
+   VARIÁVEIS
    ======================================== */
 
 :root {
+
     --yellow: #F2C811;
     --yellow-hover: #FFD83D;
 
     --background: #0B0B0B;
     --background-secondary: #111111;
+
     --card: #171717;
 
     --text: #F5F5F5;
@@ -25,6 +23,10 @@
     --max-width: 1200px;
 }
 
+
+/* ========================================
+   RESET
+   ======================================== */
 
 * {
     margin: 0;
@@ -56,12 +58,17 @@ a {
 }
 
 
+img {
+    max-width: 100%;
+}
+
+
 .container {
     width: 90%;
     max-width: var(--max-width);
+
     margin: 0 auto;
 }
-
 
 
 /* ========================================
@@ -77,7 +84,9 @@ a {
     width: 100%;
 
     background: rgba(11, 11, 11, 0.88);
+
     backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 
     border-bottom: 1px solid var(--border);
 
@@ -104,12 +113,14 @@ a {
 
 .logo::after {
     content: ".";
+
     color: var(--yellow);
 }
 
 
 .nav {
     display: flex;
+
     gap: 32px;
 }
 
@@ -127,7 +138,6 @@ a {
 .nav a:hover {
     color: var(--yellow);
 }
-
 
 
 /* ========================================
@@ -202,9 +212,9 @@ a {
 
 .hero-buttons {
     display: flex;
+
     gap: 16px;
 }
-
 
 
 /* ========================================
@@ -241,6 +251,7 @@ a {
 
 .btn-primary {
     background: var(--yellow);
+
     color: #111111;
 }
 
@@ -259,9 +270,9 @@ a {
 
 .btn-secondary:hover {
     border-color: var(--yellow);
+
     color: var(--yellow);
 }
-
 
 
 /* ========================================
@@ -296,7 +307,6 @@ a {
 
     margin-bottom: 60px;
 }
-
 
 
 /* ========================================
@@ -334,21 +344,16 @@ a {
 }
 
 
-
-/* ========================================
-   IMAGEM DOS PROJETOS
-   ======================================== */
-
 .project-image {
     width: 100%;
     height: 220px;
 
     position: relative;
 
-    /* Impede a imagem de invadir o conteúdo do card */
     overflow: hidden;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -369,10 +374,6 @@ a {
     width: 100%;
     height: 100%;
 
-    /*
-       contain preserva o dashboard inteiro
-       sem cortar as laterais ou a parte superior/inferior.
-    */
     object-fit: contain;
     object-position: center;
 
@@ -386,11 +387,6 @@ a {
     transform: scale(1.025);
 }
 
-
-
-/* ========================================
-   CONTEÚDO DOS PROJETOS
-   ======================================== */
 
 .project-content {
     padding: 28px;
@@ -438,7 +434,6 @@ a {
 }
 
 
-
 /* ========================================
    SOBRE
    ======================================== */
@@ -452,7 +447,6 @@ a {
 
     line-height: 1.8;
 }
-
 
 
 /* ========================================
@@ -485,15 +479,18 @@ a {
 
     transition:
         border-color 0.2s ease,
-        color 0.2s ease;
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 
 .technologies span:hover {
     border-color: var(--yellow);
-    color: var(--yellow);
-}
 
+    color: var(--yellow);
+
+    transform: translateY(-2px);
+}
 
 
 /* ========================================
@@ -512,12 +509,123 @@ a {
 }
 
 
-.contact p {
-    max-width: 600px;
+.contact-container {
+    display: grid;
 
-    color: rgba(17, 17, 17, 0.75);
+    grid-template-columns: 0.8fr 1.2fr;
+
+    gap: 100px;
+
+    align-items: start;
 }
 
+
+.contact-header h2 {
+    max-width: 500px;
+
+    font-size: clamp(3rem, 6vw, 5.5rem);
+
+    line-height: 0.95;
+
+    letter-spacing: -0.055em;
+
+    margin-bottom: 28px;
+}
+
+
+.contact-description {
+    max-width: 520px;
+
+    color: rgba(17, 17, 17, 0.7);
+
+    font-size: 1rem;
+
+    line-height: 1.7;
+}
+
+
+.contact-links {
+    display: flex;
+
+    flex-direction: column;
+
+    border-top: 1px solid rgba(17, 17, 17, 0.25);
+}
+
+
+.contact-card {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns: 42px 1fr auto;
+
+    gap: 24px;
+
+    align-items: center;
+
+    padding: 30px 0;
+
+    border-bottom: 1px solid rgba(17, 17, 17, 0.25);
+
+    color: #111111;
+
+    transition:
+        padding-left 0.25s ease,
+        opacity 0.25s ease;
+}
+
+
+.contact-card:hover {
+    padding-left: 10px;
+}
+
+
+.contact-icon {
+    width: 28px;
+    height: 28px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+}
+
+
+.contact-icon svg {
+    width: 25px;
+    height: 25px;
+
+    display: block;
+
+    fill: currentColor;
+
+    transition: transform 0.25s ease;
+}
+
+
+.contact-card:hover .contact-icon svg {
+    transform: scale(1.12);
+}
+
+
+.contact-card strong {
+    font-size: 1.05rem;
+
+    font-weight: 600;
+}
+
+
+.contact-arrow {
+    font-size: 1.5rem;
+
+    transition: transform 0.25s ease;
+}
+
+
+.contact-card:hover .contact-arrow {
+    transform: translate(4px, -4px);
+}
 
 
 /* ========================================
@@ -533,6 +641,27 @@ footer {
 
     font-size: 0.8rem;
 }
+
+
+.footer-container {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.footer-container a {
+    transition: color 0.2s ease;
+}
+
+
+.footer-container a:hover {
+    color: var(--yellow);
+}
+
 
 /* ========================================
    PÁGINA DE PROJETO
@@ -600,7 +729,9 @@ footer {
 
 .project-tags {
     display: flex;
+
     flex-wrap: wrap;
+
     gap: 10px;
 }
 
@@ -609,6 +740,7 @@ footer {
     padding: 8px 14px;
 
     border: 1px solid var(--border);
+
     border-radius: 100px;
 
     color: var(--text-secondary);
@@ -616,8 +748,6 @@ footer {
     font-size: 0.78rem;
 }
 
-
-/* IMAGEM PRINCIPAL */
 
 .project-showcase {
     padding: 20px 0 100px;
@@ -630,6 +760,7 @@ footer {
     background: #F5F5F5;
 
     border: 1px solid var(--border);
+
     border-radius: 12px;
 }
 
@@ -641,8 +772,6 @@ footer {
     height: auto;
 }
 
-
-/* CONTEÚDO */
 
 .project-details-grid {
     display: grid;
@@ -662,13 +791,12 @@ footer {
     color: var(--text-secondary);
 
     font-size: 1.05rem;
+
     line-height: 1.9;
 
     margin-bottom: 24px;
 }
 
-
-/* INDICADORES */
 
 .metrics-grid {
     display: grid;
@@ -687,6 +815,7 @@ footer {
     background: var(--card);
 
     border: 1px solid var(--border);
+
     border-radius: 10px;
 }
 
@@ -730,6 +859,7 @@ footer {
     background: #0D0D0D;
 
     border: 1px solid var(--border);
+
     border-radius: 10px;
 
     overflow: hidden;
@@ -754,7 +884,9 @@ footer {
 }
 
 
-/* NAVEGAÇÃO ENTRE PROJETOS */
+/* ========================================
+   NAVEGAÇÃO ENTRE PROJETOS
+   ======================================== */
 
 .project-navigation {
     padding: 100px 0;
@@ -784,9 +916,23 @@ footer {
 }
 
 
-/* RESPONSIVIDADE DA PÁGINA DO PROJETO */
+/* ========================================
+   RESPONSIVIDADE
+   ======================================== */
 
 @media (max-width: 900px) {
+
+    .projects-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+
+    .contact-container {
+        grid-template-columns: 1fr;
+
+        gap: 60px;
+    }
+
 
     .project-details-grid {
         grid-template-columns: 1fr;
@@ -796,42 +942,6 @@ footer {
 
 
     .metrics-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-}
-
-
-@media (max-width: 700px) {
-
-    .project-hero {
-        padding: 130px 0 60px;
-    }
-
-
-    .back-link {
-        margin-bottom: 50px;
-    }
-
-
-    .metrics-grid {
-        grid-template-columns: 1fr;
-    }
-
-
-    .powerbi-placeholder {
-        min-height: 350px;
-    }
-
-}
-
-/* ========================================
-   RESPONSIVIDADE
-   ======================================== */
-
-@media (max-width: 900px) {
-
-    .projects-grid {
         grid-template-columns: 1fr 1fr;
     }
 
@@ -886,6 +996,48 @@ footer {
 
     .project-image {
         height: 200px;
+    }
+
+
+    .contact-card {
+        grid-template-columns: 36px 1fr auto;
+
+        gap: 15px;
+
+        padding: 24px 0;
+    }
+
+
+    .contact-card strong {
+        font-size: 0.9rem;
+    }
+
+
+    .contact-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+
+    .footer-container {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+
+    .project-hero {
+        padding: 130px 0 60px;
+    }
+
+
+    .back-link {
+        margin-bottom: 50px;
+    }
+
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
     }
 
 }
