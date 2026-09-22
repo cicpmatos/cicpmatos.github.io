@@ -1,1 +1,562 @@
+/* ========================================
+   CAIO MATOS | PORTFÓLIO
+   ======================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+
+/* CONFIGURAÇÕES GERAIS */
+
+:root {
+    --yellow: #F2C811;
+    --yellow-hover: #FFD83D;
+
+    --background: #0B0B0B;
+    --background-secondary: #111111;
+    --card: #171717;
+
+    --text: #F5F5F5;
+    --text-secondary: #A6A6A6;
+
+    --border: #292929;
+
+    --max-width: 1200px;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    font-family: 'Inter', sans-serif;
+
+    background: var(--background);
+    color: var(--text);
+
+    line-height: 1.6;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+
+.container {
+    width: 90%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+
+
+/* ========================================
+   HEADER
+   ======================================== */
+
+.header {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    background: rgba(11, 11, 11, 0.88);
+    backdrop-filter: blur(14px);
+
+    border-bottom: 1px solid var(--border);
+
+    z-index: 1000;
+}
+
+
+.nav-container {
+    height: 76px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+
+    letter-spacing: -0.03em;
+}
+
+
+.logo::after {
+    content: ".";
+    color: var(--yellow);
+}
+
+
+.nav {
+    display: flex;
+    gap: 32px;
+}
+
+
+.nav a {
+    color: var(--text-secondary);
+
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    transition: color 0.2s ease;
+}
+
+
+.nav a:hover {
+    color: var(--yellow);
+}
+
+
+
+/* ========================================
+   HERO
+   ======================================== */
+
+.hero {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+
+    padding-top: 76px;
+
+    background:
+        radial-gradient(
+            circle at 75% 45%,
+            rgba(242, 200, 17, 0.08),
+            transparent 30%
+        );
+}
+
+
+.hero-content {
+    max-width: var(--max-width);
+}
+
+
+.eyebrow,
+.section-label {
+    color: var(--yellow);
+
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    letter-spacing: 0.18em;
+
+    margin-bottom: 18px;
+}
+
+
+.hero h1 {
+    max-width: 900px;
+
+    font-size: clamp(3.5rem, 8vw, 7.5rem);
+
+    line-height: 0.98;
+
+    letter-spacing: -0.065em;
+
+    font-weight: 800;
+
+    margin-bottom: 32px;
+}
+
+
+.hero h1 span {
+    color: var(--yellow);
+}
+
+
+.hero-description {
+    max-width: 650px;
+
+    color: var(--text-secondary);
+
+    font-size: 1.15rem;
+
+    margin-bottom: 40px;
+}
+
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+
+
+/* ========================================
+   BOTÕES
+   ======================================== */
+
+.btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 50px;
+
+    padding: 0 24px;
+
+    border-radius: 6px;
+
+    font-size: 0.9rem;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+
+.btn-primary {
+    background: var(--yellow);
+    color: #111111;
+}
+
+
+.btn-primary:hover {
+    background: var(--yellow-hover);
+}
+
+
+.btn-secondary {
+    border: 1px solid var(--border);
+
+    color: var(--text);
+}
+
+
+.btn-secondary:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+}
+
+
+
+/* ========================================
+   SEÇÕES
+   ======================================== */
+
+.section {
+    padding: 120px 0;
+}
+
+
+.section-dark {
+    background: var(--background-secondary);
+}
+
+
+.section h2 {
+    font-size: clamp(2.2rem, 5vw, 4rem);
+
+    line-height: 1.1;
+
+    letter-spacing: -0.045em;
+
+    margin-bottom: 20px;
+}
+
+
+.section-description {
+    max-width: 650px;
+
+    color: var(--text-secondary);
+
+    margin-bottom: 60px;
+}
+
+
+
+/* ========================================
+   PORTFÓLIO
+   ======================================== */
+
+.projects-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 24px;
+}
+
+
+.project-card {
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease;
+}
+
+
+.project-card:hover {
+    transform: translateY(-6px);
+
+    border-color: rgba(242, 200, 17, 0.5);
+}
+
+
+.project-image {
+    height: 220px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1A1A1A,
+            #101010
+        );
+
+    color: #555555;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    letter-spacing: 0.2em;
+
+    border-bottom: 1px solid var(--border);
+}
+
+
+.project-content {
+    padding: 28px;
+}
+
+
+.project-content > span {
+    color: var(--yellow);
+
+    font-size: 0.68rem;
+    font-weight: 700;
+
+    letter-spacing: 0.14em;
+}
+
+
+.project-content h3 {
+    font-size: 1.4rem;
+
+    margin: 10px 0 12px;
+}
+
+
+.project-content p {
+    color: var(--text-secondary);
+
+    font-size: 0.9rem;
+
+    margin-bottom: 24px;
+}
+
+
+.project-content a {
+    color: var(--text);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    transition: color 0.2s ease;
+}
+
+
+.project-content a:hover {
+    color: var(--yellow);
+}
+
+
+
+/* ========================================
+   SOBRE
+   ======================================== */
+
+.about-text {
+    max-width: 800px;
+
+    color: var(--text-secondary);
+
+    font-size: 1.2rem;
+
+    line-height: 1.8;
+}
+
+
+
+/* ========================================
+   TECNOLOGIAS
+   ======================================== */
+
+.technologies {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 40px;
+}
+
+
+.technologies span {
+    padding: 10px 18px;
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 100px;
+
+    color: var(--text-secondary);
+
+    font-size: 0.85rem;
+
+    transition:
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.technologies span:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+}
+
+
+
+/* ========================================
+   CONTATO
+   ======================================== */
+
+.contact {
+    background: var(--yellow);
+
+    color: #111111;
+}
+
+
+.contact .section-label {
+    color: #111111;
+}
+
+
+.contact p {
+    max-width: 600px;
+
+    color: rgba(17, 17, 17, 0.75);
+}
+
+
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
+footer {
+    padding: 32px 0;
+
+    border-top: 1px solid var(--border);
+
+    color: var(--text-secondary);
+
+    font-size: 0.8rem;
+}
+
+
+
+/* ========================================
+   RESPONSIVIDADE
+   ======================================== */
+
+@media (max-width: 900px) {
+
+    .projects-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .nav {
+        display: none;
+    }
+
+
+    .nav-container {
+        height: 64px;
+    }
+
+
+    .hero {
+        min-height: 90vh;
+
+        padding-top: 64px;
+    }
+
+
+    .hero h1 {
+        font-size: clamp(3rem, 14vw, 5rem);
+    }
+
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+
+    .hero-buttons {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .section {
+        padding: 80px 0;
+    }
+
+}
