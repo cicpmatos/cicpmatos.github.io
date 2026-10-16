@@ -271,6 +271,135 @@
         </section>
 
 
+                <!-- ========================================
+             IMPLEMENTAÇÃO TÉCNICA
+             ======================================== -->
+        
+        <section class="section section-dark">
+        
+            <div class="container project-details-grid">
+        
+                <div>
+        
+                    <p class="section-label">
+                        IMPLEMENTAÇÃO
+                    </p>
+        
+                    <h2>
+                        Como o projeto foi construído.
+                    </h2>
+        
+                </div>
+        
+        
+                <div class="project-text">
+        
+                    <p>
+                        Além da análise visual, o projeto envolveu diferentes etapas
+                        de integração, tratamento, modelagem e publicação dos dados.
+                    </p>
+        
+        
+                    <ul class="project-bullets">
+        
+                        <li>
+                            <strong>Integração com a API do Chess.com:</strong>
+                            utilizei a API pública da plataforma para coletar meu
+                            histórico de partidas, informações dos adversários,
+                            resultados, modalidades e dados de rating.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Enriquecimento dos dados com a API do World Bank:</strong>
+                            utilizei a API pública de países do Banco Mundial para
+                            construir uma dimensão de países a partir do código ISO
+                            dos adversários. Dessa forma, foi possível identificar
+                            o país de origem dos jogadores enfrentados e incluir
+                            essa informação nas análises.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Dimensão de países:</strong>
+                            os dados retornados pela API do World Bank foram tratados
+                            no Power Query, mantendo o código ISO de duas letras e
+                            o nome do país para relacionamento com os dados dos
+                            jogadores do Chess.com.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Tratamento de dados no Power Query:</strong>
+                            todo o processo de limpeza, transformação, padronização
+                            e preparação dos dados foi desenvolvido utilizando
+                            Power Query e linguagem M.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Modelagem de dados:</strong>
+                            os dados foram organizados e relacionados para permitir
+                            análises por período, modalidade, rating, adversário,
+                            país e resultado das partidas.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Medidas em DAX:</strong>
+                            foram desenvolvidas medidas para cálculo de indicadores
+                            como quantidade de partidas, vitórias, derrotas, empates,
+                            aproveitamento, evolução do rating e outras análises
+                            apresentadas no dashboard.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Dataflow no Power BI Service:</strong>
+                            criei um Dataflow para centralizar o processo de obtenção
+                            e transformação dos dados, com rotina de atualização
+                            automática diária.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Atualização automática do dashboard:</strong>
+                            o modelo semântico e o relatório no Power BI Service
+                            também possuem rotina de atualização diária, permitindo
+                            que novas partidas sejam incorporadas automaticamente
+                            às análises.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Publicação no Power BI Service:</strong>
+                            o dashboard foi publicado no ambiente online do Power BI
+                            para disponibilização e interação através da web.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Integração com o portfólio:</strong>
+                            o dashboard foi incorporado diretamente ao meu site
+                            utilizando o recurso de embed do Power BI.
+                        </li>
+        
+        
+                        <li>
+                            <strong>Portfólio desenvolvido com HTML e CSS:</strong>
+                            o site foi construído e publicado através do GitHub Pages,
+                            utilizando HTML e CSS, com apoio de Inteligência Artificial
+                            durante o desenvolvimento e refinamento da interface.
+                        </li>
+        
+                    </ul>
+        
+                </div>
+        
+            </div>
+        
+        </section>
+
 
         <!-- ========================================
              PRINCIPAIS ANÁLISES
