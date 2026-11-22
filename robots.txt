@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://caiomatos.com.br/sitemap.xml
