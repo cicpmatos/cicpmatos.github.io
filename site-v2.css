@@ -1,0 +1,19 @@
+/* Complementos visuais da versão 2. Preserva o CSS original do portfólio. */
+.v2-hero{padding:145px 0 55px;background:radial-gradient(circle at 80% 30%,rgba(242,200,17,.09),transparent 35%)}
+.v2-hero h1{font-size:clamp(3rem,7vw,6rem);line-height:1.03;letter-spacing:-.055em;margin-bottom:24px}
+.v2-hero h1 span{color:var(--yellow)}
+.v2-lede{color:var(--text-secondary);font-size:1.1rem;max-width:750px}
+.v2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.v2-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:30px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.v2-card>span:first-child{color:var(--yellow);font-size:.72rem;font-weight:700;letter-spacing:.12em}
+.v2-card h2{font-size:1.5rem;line-height:1.2;letter-spacing:-.03em;margin:0}
+.v2-card p{color:var(--text-secondary);font-size:.96rem}
+.v2-card a{font-size:.88rem;font-weight:700;color:var(--yellow)}
+.v2-card a:hover{text-decoration:underline}
+.v2-status{color:var(--text-secondary);font-size:.78rem;border:1px solid var(--border);padding:6px 10px;border-radius:99px}
+.v2-home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.v2-home-grid .v2-card{min-height:220px}
+.v2-home-intro{max-width:650px;color:var(--text-secondary);margin-bottom:48px}
+.v2-top-nav{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+@media(max-width:1000px){.header .nav{gap:14px}.header .nav a{font-size:.79rem}.v2-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.header .nav{display:flex;overflow-x:auto;white-space:nowrap;max-width:calc(100vw - 185px);gap:16px;scrollbar-width:none}.header .nav::-webkit-scrollbar{display:none}.header .logo{flex-shrink:0}.v2-grid,.v2-home-grid{grid-template-columns:1fr}.v2-hero{padding:110px 0 35px}.v2-card{padding:24px}.v2-hero .back-link{margin-bottom:30px}}
