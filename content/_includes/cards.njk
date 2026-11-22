@@ -1,0 +1,11 @@
+<div class="v2-grid">
+{% for post in entries %}
+<article class="v2-card">
+  <span class="v2-kicker">{{ post.data.category }}</span>
+  <h2><a class="post-title" href="{{ post.url }}">{{ post.data.title }}</a></h2>
+  <p>{{ post.data.description }}</p>
+  {% if post.data.date %}<p class="v2-note"><time datetime="{{ post.data.date | isoDate }}">{{ post.data.date | displayDate }}</time></p>{% endif %}
+  <div class="v2-links"><a href="{{ post.url }}">Ler artigo →</a></div>
+</article>
+{% endfor %}
+</div>

@@ -1,0 +1,21 @@
+{
+  "name": "caio-matos-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --serve",
+    "test": "node --test tests/*.test.mjs auth/test/*.test.mjs",
+    "check": "pnpm build && pnpm test && node scripts/check-site.mjs"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "3.1.8",
+    "decap-cms": "3.18.0",
+    "markdown-it": "14.3.3",
+    "nunjucks": "3.2.4",
+    "yaml": "2.9.1"
+  }
+}

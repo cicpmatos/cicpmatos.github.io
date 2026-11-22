@@ -73,6 +73,16 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--v2-focus); outl
 .skip-link:focus { top:12px; }
 .site-v2-header .nav a { transition:color .2s ease; }
 .v2-article .v2-highlight a { color:var(--yellow); }
+.v2-article h3 { margin:30px 0 14px; font-size:1.4rem; }
+.v2-article img { max-width:100%; height:auto; border-radius:8px; }
+.v2-article blockquote { border-left:3px solid var(--yellow); padding:10px 20px; margin:24px 0; }
+.v2-article table { display:block; max-width:100%; overflow-x:auto; border-collapse:collapse; margin:24px 0; }
+.v2-article th,.v2-article td { padding:12px; border:1px solid var(--border); text-align:left; }
+.v2-card a.post-title { color:var(--text); font-size:inherit; font-weight:inherit; display:inline; }
+.post-date { margin-top:20px; }
+.post-cover { margin-bottom:32px; }
+.v2-article .v2-highlight { margin-top:36px; }
+.v2-article .v2-highlight h2 { font-size:1.3rem; margin:0 0 12px; }
 .v2-home-grid .v2-card .v2-links { margin-top:auto; }
 @media (max-width:850px) {
  .site-v2-header .nav a:focus-visible { outline-offset:2px; }
