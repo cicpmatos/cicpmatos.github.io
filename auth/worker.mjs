@@ -86,6 +86,14 @@ function uniqueAllowedParameters(params, allowed) {
   return true;
 }
 
+function uniqueCallbackParameters(params) {
+  // RFC 6749 §4.1.2 requires clients to ignore unrecognized response parameters.
+  // Only these fields are consumed; extras never select an endpoint or reach
+  // the token exchange, popup or diagnostics. Ambiguous consumed fields fail.
+  const consumed = ['code', 'state', 'error', 'error_description', 'error_uri', 'provider'];
+  return consumed.every(key => params.getAll(key).length <= 1);
+}
+
 function additionalData(config) {
   return encoder.encode(`cms-oauth-v1|${config.origin}|${SITE_ORIGIN}|${config.clientId}`);
 }
@@ -230,7 +238,7 @@ async function callback(request, url, config, now, fetchImpl) {
   const params = url.searchParams;
   let session;
   try {
-    if (!uniqueAllowedParameters(params, ['code', 'state', 'error', 'error_description', 'error_uri', 'provider']) ||
+    if (!uniqueCallbackParameters(params) ||
         (params.has('provider') && params.get('provider') !== 'github')) {
       throw new SessionValidationError('callback_parameters');
     }

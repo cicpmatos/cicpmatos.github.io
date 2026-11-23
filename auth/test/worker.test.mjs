@@ -139,10 +139,6 @@ test('session diagnostics use fixed reason codes without exposing callback or se
   const wrongState = 'W'.repeat(43);
   const scenarios = [
     {
-      name: 'unrecognized callback parameter', reason: 'callback_parameters',
-      change: () => ({ query: `code=${callbackCode}&unexpected=${extraValue}` }),
-    },
-    {
       name: 'duplicate callback parameter', reason: 'callback_parameters',
       change: () => ({ query: `code=${callbackCode}&code=${extraValue}` }),
     },
@@ -221,13 +217,50 @@ test('auth rejects redirect injection, provider mismatch, duplicate parameters, 
   assert.equal(wrongHost.status, 400);
 });
 
-test('callback rejects query injection and provider mismatches without contacting GitHub', async () => {
-  for (const query of ['code=test&provider=gitlab', 'code=test&redirect_uri=https://attacker.example', 'code=one&code=two', 'code=test&state=extra']) {
+test('callback rejects ambiguous consumed parameters and provider mismatches without contacting GitHub', async () => {
+  for (const query of [
+    'code=test&provider=gitlab', 'code=one&code=two', 'code=test&state=extra',
+    'code=test&provider=github&provider=github', 'error=one&error=two',
+    'error=access_denied&error_description=one&error_description=two',
+    'error=access_denied&error_uri=one&error_uri=two',
+  ]) {
     const flow = await start();
     const response = await finish(flow, { query });
     assert.equal(response.status, 400);
+    assert.equal(response.headers.get('X-CMS-Login-Error'), 'callback_parameters');
     assert.equal(flow.h.calls.length, 0);
   }
+});
+
+test('unrecognized callback metadata is ignored, not reflected or forwarded', async () => {
+  const extras = new URLSearchParams({
+    scope: 'untrusted-scope-metadata', iss: 'https://ignored-issuer.example',
+    unknown: '<script>ignored-metadata</script>', redirect_uri: 'https://ignored-redirect.example',
+  });
+  extras.append('unknown', 'ignored-duplicate-metadata');
+  const query = `code=one-time-code&${extras}`;
+  const flow = await start();
+  const response = await finish(flow, { query });
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('X-CMS-Login-Error'), null);
+  assert.equal(flow.h.calls.length, 2);
+  assert.equal(flow.h.calls[0].url, 'https://github.com/login/oauth/access_token');
+  assert.equal(flow.h.calls[1].url, 'https://api.github.com/user');
+  const exchange = new URLSearchParams(flow.h.calls[0].options.body);
+  assert.equal(exchange.get('redirect_uri'), `${AUTH}/callback`);
+  assert.deepEqual([...exchange.keys()].sort(), ['client_id', 'client_secret', 'code', 'code_verifier', 'redirect_uri']);
+  const body = await response.text();
+  const output = body + JSON.stringify([...response.headers]) + JSON.stringify(flow.h.calls);
+  assert.ok([...extras.values()].every(value => !output.includes(value)), 'Unknown parameter values must not reach output or upstream calls.');
+  const badState = await start();
+  const rejected = await finish(badState, { query, state: 'X'.repeat(43) });
+  assert.equal(rejected.status, 400);
+  assert.equal(rejected.headers.get('X-CMS-Login-Error'), 'state_mismatch');
+  assert.equal(badState.h.calls.length, 0);
+  const wrongAccount = await start(harness({ identity: { id: 123, login: 'cicpmatos' } }));
+  const denied = await finish(wrongAccount, { query });
+  assert.equal(denied.status, 403);
+  assert.ok(!(await denied.text()).includes(TOKEN));
 });
 
 test('cancelled authorization returns a safe Decap error only after state validation', async () => {
