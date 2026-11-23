@@ -23,7 +23,7 @@
   <nav class="nav" id="site-nav" aria-label="Navegação principal">
     <a href="/#portfolio">Projetos</a><a href="/tecnologias/">Tecnologias</a>
     <a href="/artigos/"{% if page.url.startsWith('/artigos/') %} aria-current="page"{% endif %}>Artigos</a>
-    <a href="/videos/">Vídeos</a><a href="/publicacoes/">Publicações</a>
+    <a href="/videos/"{% if page.url.startsWith('/videos/') %} aria-current="page"{% endif %}>Vídeos</a><a href="/publicacoes/">Publicações</a>
     <a href="/alem-dos-dados/"{% if page.url == '/alem-dos-dados/' %} aria-current="page"{% endif %}>Além dos dados</a><a href="/#contato">Contato</a>
   </nav>
 </div></header>

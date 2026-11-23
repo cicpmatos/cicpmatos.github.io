@@ -10,6 +10,16 @@ Salvar um rascunho cria uma branch e uma pull request. Revise o texto e confira 
 
 O repositório é público: rascunhos, imagens e histórico de commits podem ser vistos no GitHub antes da publicação no site. Não use esse espaço como armazenamento privado. A senha é informada ao GitHub; nenhuma senha é guardada no site.
 
+## Publicar vídeos
+
+No painel, escolha **Vídeos → Novo Vídeo**. Preencha título, descrição, endereço, tema e **Link do YouTube**; data e notas em Markdown são opcionais. Não é necessário criar um artigo nem colar HTML. Salve, revise e publique pelo mesmo fluxo editorial.
+
+O site gera automaticamente `/videos/`, com players na própria lista, e `/videos/{slug}.html`, com o player e as notas. Vídeos novos aparecem primeiro pela data informada. O sitemap inclui as páginas individuais. Sem vídeos cadastrados, a seção exibe uma mensagem honesta de estado vazio, sem demonstrações fictícias.
+
+O arquivo de vídeo permanece no YouTube. URLs HTTPS de vídeos convencionais, links curtos, Shorts e lives são normalizadas para um ID validado; a URL fornecida nunca é colocada diretamente no iframe. Os players usam `youtube-nocookie.com`, carregamento adiado, sem autoplay e com `referrerpolicy="strict-origin-when-cross-origin"` para preservar o Referer exigido pelo YouTube. Esse modo não significa ausência de conexões ou coleta pelo YouTube. Links diretos oferecem uma alternativa quando o player não estiver disponível.
+
+Confirme que o vídeo permite incorporação. Vídeos privados, indisponíveis ou com restrições podem não reproduzir. Publicar o link de um vídeo não listado torna esse link encontrável. Parâmetros de compartilhamento e marcações de tempo são ignorados. A prévia padrão do editor mostra o conteúdo, não o player final. Consulte também o [guia oficial de incorporação](https://support.google.com/youtube/answer/171780).
+
 ## Ativação necessária
 
 O workflow já configura o painel com o serviço de login `https://caiomatos-cms-auth.cicpmatos.workers.dev`. Não é necessário criar uma variável no GitHub para usar esse endereço. Antes de publicar a migração, é necessário:
@@ -40,11 +50,12 @@ Em builds locais sem `CMS_AUTH_ORIGIN`, o site público é gerado normalmente e 
 ## Estrutura
 
 - `content/posts/*.md`: posts editáveis e metadados.
+- `content/videos/*.md`: vídeos editáveis, URL do YouTube e notas opcionais.
 - `content/_includes/`: modelos compartilhados de página, artigo e cards.
-- `content/artigos.njk`, `content/pessoal.njk`, `content/sitemap.njk`: índices gerados.
+- `content/artigos.njk`, `content/pessoal.njk`, `content/videos.njk`, `content/sitemap.njk`: índices gerados.
 - `admin/`: painel, configuração pública e guia de publicação.
 - `auth/`: serviço OAuth independente; nunca é incluído no site estático.
-- `index.html`, `projetos/`, `tecnologias/`, `publicacoes/`, `videos/`, CSS e imagens: páginas e recursos existentes.
+- `index.html`, `projetos/`, `tecnologias/`, `publicacoes/`, CSS e imagens: páginas e recursos existentes.
 - `_site/`: saída gerada, ignorada pelo Git.
 
 O estudo de caso de xadrez foi migrado para Markdown e mantém a URL `/artigos/integracao-apis-xadrez.html`, sem inventar uma data de publicação. Não foram criados artigos fictícios para preencher a agenda editorial.

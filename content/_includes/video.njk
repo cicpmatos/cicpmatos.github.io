@@ -1,0 +1,17 @@
+---
+layout: base.njk
+---
+<section class="v2-hero"><div class="container">
+  <a href="/videos/" class="back-link">← Todos os vídeos</a>
+  <p class="section-label">{{ category }}</p>
+  <h1>{{ title }}<span>.</span></h1>
+  <p class="v2-lede">{{ description }}</p>
+  {% if date %}<p class="v2-note post-date"><time datetime="{{ date | isoDate }}">{{ date | displayDate }}</time></p>{% endif %}
+</div></section>
+<section class="section"><div class="container"><article class="v2-article">
+  {% set videoId = youtube_url | youtubeVideoId %}{% set videoTitle = title %}
+  {% include 'video-player.njk' %}
+  <p class="video-external"><a href="https://www.youtube.com/watch?v={{ videoId }}" target="_blank" rel="noopener noreferrer">Assistir no YouTube ↗</a></p>
+  <p class="v2-note video-privacy">Player do YouTube. Ao carregar ou reproduzir o vídeo, você se conecta ao YouTube.</p>
+  {{ content | safe }}
+</article></div></section>
