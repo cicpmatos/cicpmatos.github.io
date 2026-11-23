@@ -20,6 +20,12 @@ O arquivo de vídeo permanece no YouTube. URLs HTTPS de vídeos convencionais, l
 
 Confirme que o vídeo permite incorporação. Vídeos privados, indisponíveis ou com restrições podem não reproduzir. Publicar o link de um vídeo não listado torna esse link encontrável. Parâmetros de compartilhamento e marcações de tempo são ignorados. A prévia padrão do editor mostra o conteúdo, não o player final. Consulte também o [guia oficial de incorporação](https://support.google.com/youtube/answer/171780).
 
+## Filtros públicos por tema
+
+As listas de **Artigos** e **Vídeos** oferecem Todos, Python, PostgreSQL, Power BI, Engenharia de Dados e Pessoal. As opções usam a mesma lista de temas aceita na validação do conteúdo. A contagem é calculada a partir dos itens publicados de cada seção; basta escolher **Tema** no painel e publicar normalmente. Cada item pertence a um tema.
+
+Os filtros funcionam por botões acessíveis, com indicação da opção selecionada, contagem e aviso de nenhum resultado. Não alteram os endereços dos artigos e vídeos. Sem JavaScript, todos os itens continuam disponíveis e os controles ficam ocultos. Ao ocultar um vídeo pelo filtro, o player é descarregado para interromper o áudio; ao exibi-lo novamente, o player volta sem reprodução automática e sem preservar a posição anterior.
+
 ## Ativação necessária
 
 O workflow já configura o painel com o serviço de login `https://caiomatos-cms-auth.cicpmatos.workers.dev`. Não é necessário criar uma variável no GitHub para usar esse endereço. Antes de publicar a migração, é necessário:

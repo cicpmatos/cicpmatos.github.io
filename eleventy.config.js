@@ -1,6 +1,6 @@
 import nunjucks from 'nunjucks';
 import { readdirSync } from 'node:fs';
-import { markdown } from './lib/content.mjs';
+import { markdown, categories } from './lib/content.mjs';
 import { validateSources } from './lib/validate.mjs';
 import { youtubeVideoId } from './lib/videos.mjs';
 
@@ -17,6 +17,7 @@ export default function (config) {
     }
   }
   config.addGlobalData('site', { title: 'Caio Matos', url: 'https://caiomatos.com.br' });
+  config.addGlobalData('topics', categories);
   config.addCollection('posts', api => api.getFilteredByTag('post').sort((a, b) => {
     return (Date.parse(b.data.date || '') || 0) - (Date.parse(a.data.date || '') || 0) || a.data.title.localeCompare(b.data.title, 'pt-BR');
   }));

@@ -2,12 +2,15 @@
 layout: base.njk
 permalink: /artigos/index.html
 title: Artigos e estudos
+topicFilters: true
 description: Notas técnicas, experiências e estudos que conectam conceitos a problemas reais.
 ---
 <section class="v2-hero"><div class="container"><a href="/" class="back-link">← Voltar ao início</a>
 <p class="section-label">CADERNO DE CONHECIMENTO</p><h1>Artigos e estudos<span>.</span></h1>
 <p class="v2-lede">Python, PostgreSQL, Power BI e experiências pessoais: um registro do que aprendo e aplico.</p></div></section>
-<section class="section"><div class="container">
+<section class="section"><div class="container" data-topic-browser data-topic-singular="artigo" data-topic-plural="artigos">
   <div class="v2-section-heading"><div><p class="section-label">PUBLICAÇÕES</p><h2>Aprender, aplicar, registrar.</h2></div></div>
-  {% set entries = collections.posts %}{% include 'cards.njk' %}
+  {% set entries = collections.posts %}{% include 'topic-filters.njk' %}
+  {% include 'cards.njk' %}
+  {% if not entries.length %}<p class="v2-note">Ainda não há artigos publicados.</p>{% endif %}
 </div></section>

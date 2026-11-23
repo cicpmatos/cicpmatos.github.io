@@ -2,6 +2,7 @@
 layout: base.njk
 permalink: /videos/index.html
 title: Vídeos
+topicFilters: true
 description: Tutoriais e demonstrações de Python, PostgreSQL, Power BI e dados, com reprodução aqui no site.
 ---
 <section class="v2-hero"><div class="container">
@@ -10,13 +11,17 @@ description: Tutoriais e demonstrações de Python, PostgreSQL, Power BI e dados
   <h1>Uma ideia.<br>Na prática<span>.</span></h1>
   <p class="v2-lede">Tutoriais, demonstrações e aprendizados sobre Python, PostgreSQL, Power BI e dados. Dê o play e acompanhe por aqui.</p>
 </div></section>
-<section class="section"><div class="container">
+<section class="section"><div class="container" data-topic-browser data-topic-singular="vídeo" data-topic-plural="vídeos">
+  {% set entries = collections.videos %}
   {% if collections.videos.length %}
   <div class="v2-section-heading"><div><p class="section-label">VÍDEOS PUBLICADOS</p><h2>Do problema à solução.</h2></div></div>
+  {% endif %}
+  {% include 'topic-filters.njk' %}
+  {% if collections.videos.length %}
   <p class="v2-note video-privacy">Players do YouTube. Ao carregar ou reproduzir um vídeo, você se conecta ao YouTube.</p>
   <div class="video-grid">
     {% for video in collections.videos %}
-    <article class="video-card" aria-labelledby="video-{{ video.data.slug }}">
+    <article class="video-card" data-topic-card="{{ video.data.category }}" aria-labelledby="video-{{ video.data.slug }}">
       {% set videoId = video.data.youtube_url | youtubeVideoId %}{% set videoTitle = video.data.title %}
       {% include 'video-player.njk' %}
       <div class="video-card-content">
