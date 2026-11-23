@@ -1,6 +1,6 @@
 <div class="v2-grid">
 {% for post in entries %}
-<article class="v2-card">
+<article class="v2-card"{% if topicFilters %} data-topic-card="{{ post.data.category }}"{% endif %}>
   <span class="v2-kicker">{{ post.data.category }}</span>
   <h2><a class="post-title" href="{{ post.url }}">{{ post.data.title }}</a></h2>
   <p>{{ post.data.description }}</p>

@@ -30,5 +30,6 @@
 <main id="conteudo">{{ content | safe }}</main>
 <footer><div class="container footer-container"><p>© Caio Matos</p><nav class="footer-links" aria-label="Links do rodapé"><a href="/admin/">Área do autor</a><a href="/">Voltar ao início ↑</a></nav></div></footer>
 <script src="/script.js"></script>
+{% if topicFilters %}<script type="module" src="/assets/topic-filters.js"></script>{% endif %}
 </body>
 </html>

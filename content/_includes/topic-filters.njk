@@ -1,0 +1,13 @@
+<div class="topic-controls" data-topic-controls hidden>
+  <fieldset class="topic-fieldset">
+    <legend>Filtrar por tema</legend>
+    <div class="topic-options">
+      <button type="button" class="topic-button" data-topic="" aria-pressed="true">Todos <span class="topic-count" data-topic-count aria-hidden="true">0</span></button>
+      {% for topic in topics %}
+      <button type="button" class="topic-button" data-topic="{{ topic }}" aria-pressed="false">{{ topic }} <span class="topic-count" data-topic-count aria-hidden="true">0</span></button>
+      {% endfor %}
+    </div>
+  </fieldset>
+  <p class="topic-status" data-topic-status role="status" aria-live="polite" aria-atomic="true"></p>
+</div>
+{% if entries.length %}<p class="topic-empty" data-topic-empty hidden>Ainda não há publicações neste tema. Escolha outro tema ou selecione <strong>Todos</strong>.</p>{% endif %}
