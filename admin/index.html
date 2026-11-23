@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script>
+      if (["caiomatos.com.br", "www.caiomatos.com.br", "cicpmatos.github.io"].includes(location.hostname) && location.origin !== "https://caiomatos.com.br") {
+        location.replace("https://caiomatos.com.br/admin/" + location.hash);
+      }
+    </script>
     <title>Estúdio de publicação | Caio Matos</title>
     <link rel="stylesheet" href="/admin/admin.css">
     <script type="module" src="/admin/app.js"></script>
@@ -60,6 +65,10 @@
         <span>Estúdio de publicação</span>
         <a href="/admin/guia.html" target="_blank" rel="noopener">Guia de publicação ↗</a>
       </div>
+      <aside id="login-feedback" class="login-feedback" role="status" aria-live="polite" hidden>
+        <p id="login-feedback-message"></p>
+        <button id="login-feedback-dismiss" type="button" aria-label="Fechar aviso de acesso">Fechar</button>
+      </aside>
       <div id="nc-root"></div>
     </section>
   </body>

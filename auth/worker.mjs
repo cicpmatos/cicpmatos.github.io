@@ -195,6 +195,30 @@ function popupResult(payload, success, status = 200) {
   });
 }
 
+function authorizationFailure(code, status = 502) {
+  const messages = {
+    authorization_cancelled: 'A autorização no GitHub não foi concluída. Tente novamente pelo painel.',
+    oauth_code_missing: 'O GitHub não retornou um código válido. Tente novamente pelo painel.',
+    oauth_client_credentials: 'A chave do aplicativo de login precisa ser corrigida no serviço de acesso.',
+    oauth_redirect_mismatch: 'O endereço de retorno do aplicativo precisa ser corrigido no GitHub.',
+    oauth_code_invalid: 'A autorização expirou ou já foi usada. Inicie uma nova tentativa pelo painel.',
+    oauth_email_unverified: 'Confirme seu endereço de e-mail no GitHub antes de entrar novamente.',
+    oauth_exchange_failed: 'O serviço não conseguiu concluir a autorização com o GitHub. Tente novamente.',
+    oauth_exchange_unreachable: 'O serviço não conseguiu se conectar ao GitHub. Tente novamente.',
+    oauth_exchange_denied: 'O GitHub recusou a conexão do serviço de acesso. A configuração precisa ser verificada.',
+    oauth_redirect_rejected: 'O serviço recusou um redirecionamento inesperado durante o login.',
+    oauth_response_format: 'O serviço recebeu uma resposta inesperada do GitHub. Tente novamente.',
+    oauth_token_invalid: 'O GitHub retornou uma autorização que o painel não consegue usar.',
+    oauth_scope: 'As permissões do aplicativo são diferentes das esperadas. Revogue sua autorização antiga no GitHub e entre novamente.',
+    github_identity_failed: 'Não foi possível confirmar sua conta no GitHub. Tente novamente.',
+    github_account_denied: 'Esta conta do GitHub não tem acesso ao painel. Entre com a conta cicpmatos.',
+  };
+  const safeCode = Object.hasOwn(messages, code) ? code : 'oauth_exchange_failed';
+  const response = popupResult({message: `${messages[safeCode]} Código de diagnóstico: ${safeCode}.`, code: safeCode}, false, status);
+  response.headers.set('X-CMS-Login-Error', safeCode);
+  return response;
+}
+
 async function authorize(request, url, config, now) {
   const params = url.searchParams;
   const requestOrigin = request.headers.get('Origin');
@@ -253,18 +277,21 @@ async function callback(request, url, config, now, fetchImpl) {
     });
   }
   if (params.has('error')) {
-    return popupResult({ message: 'A autorização no GitHub não foi concluída. Tente novamente pelo painel.' }, false, 401);
+    return authorizationFailure('authorization_cancelled', 401);
   }
   const code = params.get('code');
   if (!code || code.length > 2048) {
-    return popupResult({ message: 'O GitHub não retornou um código válido. Tente novamente.' }, false, 400);
+    return authorizationFailure('oauth_code_missing', 400);
   }
+  let failureCode = 'oauth_exchange_unreachable';
   try {
     const tokenResponse = await fetchImpl('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      redirect: 'error',
+      // Workers supports manual/follow, not the Fetch standard's error mode.
+      // Never forward the client secret to a redirect destination.
+      redirect: 'manual',
       signal: AbortSignal.timeout(10000),
-      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': 'caiomatos-cms-oauth' },
       body: new URLSearchParams({
         client_id: config.clientId,
         client_secret: config.clientSecret,
@@ -273,15 +300,35 @@ async function callback(request, url, config, now, fetchImpl) {
         code_verifier: session.verifier,
       }).toString(),
     });
-    if (!tokenResponse.ok) throw new Error('Token exchange failed');
-    const token = await tokenResponse.json();
-    if (token.error || typeof token.access_token !== 'string' ||
-        !/^[A-Za-z0-9_]{20,2048}$/.test(token.access_token) ||
-        token.token_type?.toLowerCase() !== 'bearer' || token.scope !== 'public_repo') {
-      throw new Error('Invalid token or excessive scope');
+    if (tokenResponse.status >= 300 && tokenResponse.status < 400) {
+      failureCode = 'oauth_redirect_rejected';
+      throw new Error('Token redirect rejected');
     }
+    failureCode = [401,403].includes(tokenResponse.status) ? 'oauth_exchange_denied' : 'oauth_response_format';
+    const token = await tokenResponse.json();
+    failureCode = 'oauth_exchange_failed';
+    if (token?.error) {
+      const upstreamCodes = {
+        incorrect_client_credentials: 'oauth_client_credentials',
+        redirect_uri_mismatch: 'oauth_redirect_mismatch',
+        bad_verification_code: 'oauth_code_invalid',
+        unverified_user_email: 'oauth_email_unverified',
+      };
+      if (Object.hasOwn(upstreamCodes, token.error)) failureCode = upstreamCodes[token.error];
+      throw new Error('Token exchange rejected');
+    }
+    if (!tokenResponse.ok) throw new Error('Token exchange failed');
+    failureCode = 'oauth_token_invalid';
+    if (typeof token?.access_token !== 'string' ||
+        !/^[A-Za-z0-9_]{20,2048}$/.test(token.access_token) ||
+        token.token_type?.toLowerCase() !== 'bearer') {
+      throw new Error('Invalid token');
+    }
+    failureCode = 'oauth_scope';
+    if (token.scope !== 'public_repo') throw new Error('Unexpected scope');
+    failureCode = 'github_identity_failed';
     const userResponse = await fetchImpl('https://api.github.com/user', {
-      redirect: 'error',
+      redirect: 'manual',
       signal: AbortSignal.timeout(10000),
       headers: {
         Accept: 'application/vnd.github+json',
@@ -293,11 +340,11 @@ async function callback(request, url, config, now, fetchImpl) {
     if (!userResponse.ok) throw new Error('Identity check failed');
     const user = await userResponse.json();
     if (user.id !== ALLOWED_GITHUB_ID) {
-      return popupResult({ message: 'Esta conta do GitHub não tem acesso ao painel.' }, false, 403);
+      return authorizationFailure('github_account_denied', 403);
     }
     return popupResult({ token: token.access_token, provider: 'github' }, true);
   } catch {
-    return popupResult({ message: 'Não foi possível validar o acesso no GitHub. Entre novamente; se persistir, confira a configuração do serviço.' }, false, 502);
+    return authorizationFailure(failureCode);
   }
 }
 
