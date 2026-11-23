@@ -14,13 +14,17 @@ const ENV = {
   SESSION_SECRET: Buffer.alloc(32, 7).toString('base64url'),
 };
 
-function harness({ identity = { id: 92313515, login: 'cicpmatos' }, token = {}, upstreamError = false } = {}) {
+function harness({ identity = { id: 92313515, login: 'cicpmatos' }, token = {}, upstreamError = false, redirectAt = null } = {}) {
   let time = 1800000000000;
   const calls = [];
   const handler = createHandler({
     now: () => time,
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
+      if (options.redirect === 'error') throw new TypeError('Workers does not support redirect error mode');
+      if ((redirectAt === 'token' && url.endsWith('/access_token')) || (redirectAt === 'identity' && url.endsWith('/user'))) {
+        return new Response('',{status:302,headers:{Location:'https://must-never-receive-credentials.example'}});
+      }
       if (upstreamError) throw new Error('sensitive upstream diagnostic');
       if (url.endsWith('/access_token')) {
         return Response.json({ access_token: TOKEN, token_type: 'bearer', scope: 'public_repo', ...token });
@@ -68,11 +72,12 @@ test('success validates immutable GitHub ID, binds PKCE and returns only the tok
   assert.equal(response.status, 200);
   assert.match(response.headers.get('Set-Cookie'), /Max-Age=0$/);
   const tokenRequest = new URLSearchParams(flow.h.calls[0].options.body);
+  assert.equal(flow.h.calls[0].options.headers['User-Agent'], 'caiomatos-cms-oauth');
   assert.equal(tokenRequest.get('client_secret'), ENV.OAUTH_CLIENT_SECRET);
   assert.equal(tokenRequest.get('redirect_uri'), `${AUTH}/callback`);
   assert.equal(createHash('sha256').update(tokenRequest.get('code_verifier')).digest('base64url'), flow.github.searchParams.get('code_challenge'));
   assert.equal(flow.h.calls[1].options.headers.Authorization, `Bearer ${TOKEN}`);
-  for (const call of flow.h.calls) assert.equal(call.options.redirect, 'error');
+  for (const call of flow.h.calls) assert.equal(call.options.redirect, 'manual');
   const html = await response.text();
   assert.ok(!html.includes(ENV.OAUTH_CLIENT_SECRET));
   assert.ok(!html.includes(tokenRequest.get('code_verifier')));
@@ -315,4 +320,41 @@ test('missing/unsafe configuration fails closed; unrelated endpoints and methods
   const post = await h.handler(new Request(`${AUTH}/auth`, { method: 'POST' }), ENV);
   assert.equal(post.status, 405);
   assert.equal(post.headers.get('Allow'), 'GET');
+});
+
+test('OAuth failure stages expose fixed diagnostic labels but never upstream details', async () => {
+  for (const [error, expected] of [
+    ['incorrect_client_credentials','oauth_client_credentials'],
+    ['redirect_uri_mismatch','oauth_redirect_mismatch'],
+    ['bad_verification_code','oauth_code_invalid'],
+    ['unverified_user_email','oauth_email_unverified'],
+    ['untrusted-upstream-diagnostic','oauth_exchange_failed'],
+  ]) {
+    const flow = await start(harness({token:{error,error_description:'UPSTREAM_PRIVATE_DETAIL'}}));
+    const response = await finish(flow);
+    const html = await response.text();
+    assert.equal(response.status,502);
+    assert.equal(response.headers.get('X-CMS-Login-Error'),expected);
+    assert.ok(html.includes(expected));
+    assert.ok(!html.includes('UPSTREAM_PRIVATE_DETAIL'));
+    assert.ok(!html.includes('untrusted-upstream-diagnostic'));
+    assert.ok(!html.includes(ENV.OAUTH_CLIENT_SECRET));
+    assert.ok(!html.includes(TOKEN));
+    assert.equal(flow.h.calls.length,1);
+  }
+});
+
+test('Cloudflare-compatible outbound calls reject redirects without forwarding credentials', async () => {
+  for (const redirectAt of ['token','identity']) {
+    const flow = await start(harness({redirectAt}));
+    const response = await finish(flow);
+    const body = await response.text();
+    assert.equal(response.status,502);
+    assert.equal(flow.h.calls.length,redirectAt==='token'?1:2);
+    assert.ok(flow.h.calls.every(call=>call.options.redirect==='manual'));
+    assert.ok(flow.h.calls.every(call=>['https://github.com/login/oauth/access_token','https://api.github.com/user'].includes(call.url)));
+    assert.ok(!body.includes(ENV.OAUTH_CLIENT_SECRET));
+    assert.ok(!body.includes(TOKEN));
+    assert.ok(!body.includes('must-never-receive-credentials.example'));
+  }
 });

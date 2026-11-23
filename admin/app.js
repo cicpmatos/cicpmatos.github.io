@@ -1,4 +1,5 @@
 import { createCmsConfig } from "./config.js";
+import { installLoginFeedback } from "./login-feedback.js";
 
 const title = document.querySelector("#status-title");
 const description = document.querySelector("#status-description");
@@ -42,6 +43,7 @@ try {
     showPending();
   } else {
     const config = createCmsConfig(runtime.authOrigin);
+    installLoginFeedback(runtime.authOrigin);
     title.textContent = "Entre com sua conta GitHub";
     description.textContent = "O acesso ao editor está reservado à conta autorizada do site. Sua senha será solicitada somente pelo GitHub, se necessário.";
     status.dataset.state = "ready";
