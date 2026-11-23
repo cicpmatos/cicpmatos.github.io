@@ -3,6 +3,8 @@
 :root { --v2-focus: #F2C811; }
 html { scroll-padding-top: 86px; }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--v2-focus); outline-offset: 4px; }
+.footer-links { display:flex; flex-wrap:wrap; align-items:center; gap:8px 24px; }
+.footer-links a { display:inline-flex; align-items:center; min-height:44px; }
 .site-v2-header .nav-container { gap: 20px; }
 .site-v2-header .nav { gap: clamp(12px, 1.5vw, 25px); align-items: center; }
 .site-v2-header .nav a { font-size: .82rem; white-space: nowrap; }
