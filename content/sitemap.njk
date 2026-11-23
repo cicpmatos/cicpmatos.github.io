@@ -1,0 +1,13 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{% for path in ['/', '/projetos/analise-financeira.html', '/projetos/analise-xadrez.html', '/projetos/analise-condominio.html', '/tecnologias/', '/artigos/', '/videos/', '/publicacoes/', '/alem-dos-dados/'] %}
+  <url><loc>{{ site.url }}{{ path }}</loc></url>
+{% endfor %}
+{% for post in collections.posts %}
+  <url><loc>{{ site.url }}{{ post.url }}</loc></url>
+{% endfor %}
+</urlset>

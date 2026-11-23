@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "caiomatos-cms-auth",
+  "account_id": "b02e2298920fcb3329370b71bbd0d426",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-22",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://caiomatos-cms-auth.cicpmatos.workers.dev",
+    "OAUTH_CLIENT_ID": "Ov23liR0imL88VYGV2qM"
+  },
+  "secrets": {
+    "required": ["OAUTH_CLIENT_SECRET", "SESSION_SECRET"]
+  }
+}

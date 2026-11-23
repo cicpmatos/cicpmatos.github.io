@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Estúdio de publicação | Caio Matos</title>
+    <link rel="stylesheet" href="/admin/admin.css">
+    <script type="module" src="/admin/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <header class="studio-header">
+      <a class="wordmark" href="/">Caio Matos<span> / estúdio</span></a>
+      <nav aria-label="Navegação do estúdio">
+        <a href="/admin/guia.html">Guia de publicação</a>
+        <a href="/artigos/">Ver artigos <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main class="studio-main" id="conteudo">
+      <section class="intro" aria-labelledby="titulo">
+        <p class="eyebrow">Seu espaço de escrita</p>
+        <h1 id="titulo">Uma ideia.<br>Um novo <span>post.</span></h1>
+        <p class="lead">Escreva, adicione exemplos e compartilhe o que está aprendendo. Seus artigos, projetos e histórias começam aqui.</p>
+        <div class="topic-list" aria-label="Temas do site">
+          <span>Python</span><span>PostgreSQL</span><span>Power BI</span><span>Dados</span><span>Pessoal</span>
+        </div>
+      </section>
+
+      <section class="entry-card" aria-labelledby="acesso-titulo">
+        <div class="card-heading">
+          <span class="status-dot" aria-hidden="true"></span>
+          <p class="eyebrow">Painel de conteúdo</p>
+        </div>
+        <h2 id="acesso-titulo">Escreva no seu ritmo.</h2>
+        <p>O editor reúne texto, imagens, trechos de código e links de repositórios em um só lugar. Você revisa o post antes de publicá-lo.</p>
+        <div class="access-status" id="access-status" role="status" aria-live="polite">
+          <strong id="status-title">Verificando o acesso…</strong>
+          <p id="status-description">A configuração do painel está sendo carregada.</p>
+        </div>
+        <button class="primary-button" id="open-editor" type="button" disabled>Aguarde…</button>
+        <p class="access-caption" id="access-caption">A entrada será feita com sua conta GitHub.</p>
+        <noscript><p class="notice">Ative o JavaScript no navegador para abrir o editor. O <a href="/admin/guia.html">guia de publicação</a> continua disponível.</p></noscript>
+      </section>
+
+      <section class="workflow" aria-label="Da ideia à publicação">
+        <div><span class="step-number">01</span><h2>Escreva</h2><p>Comece com um exemplo ou uma experiência. O editor cuida da formatação.</p></div>
+        <div><span class="step-number">02</span><h2>Revise</h2><p>Salve um rascunho e confira o texto, os links e os exemplos.</p></div>
+        <div><span class="step-number">03</span><h2>Publique</h2><p>Quando estiver pronto, publique. A lista de artigos será atualizada junto.</p></div>
+      </section>
+
+      <p class="privacy-note">Os rascunhos ficam fora da lista de artigos, mas podem ser lidos no repositório público do GitHub. Use este espaço para conteúdo que você pode compartilhar.</p>
+    </main>
+
+    <section class="editor-shell" id="editor-shell" aria-label="Editor de artigos" hidden>
+      <div class="editor-topbar">
+        <a href="/admin/">← Voltar ao estúdio</a>
+        <span>Estúdio de publicação</span>
+        <a href="/admin/guia.html" target="_blank" rel="noopener">Guia de publicação ↗</a>
+      </div>
+      <div id="nc-root"></div>
+    </section>
+  </body>
+</html>

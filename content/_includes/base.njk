@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ description }}">
+  <meta name="theme-color" content="#0B0B0B">
+  <title>{{ title }} | Caio Matos</title>
+  <link rel="canonical" href="{{ site.url }}{{ page.url }}">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+  <meta property="og:type" content="{% if category %}article{% else %}website{% endif %}">
+  {% if image %}<meta property="og:image" content="{{ site.url }}{{ image }}">{% endif %}
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/site-v2.css">
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+<header class="header site-v2-header"><div class="container nav-container">
+  <a class="logo" href="/" aria-label="Caio Matos, início">Caio Matos</a>
+  <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">☰ Menu</button>
+  <nav class="nav" id="site-nav" aria-label="Navegação principal">
+    <a href="/#portfolio">Projetos</a><a href="/tecnologias/">Tecnologias</a>
+    <a href="/artigos/"{% if page.url.startsWith('/artigos/') %} aria-current="page"{% endif %}>Artigos</a>
+    <a href="/videos/">Vídeos</a><a href="/publicacoes/">Publicações</a>
+    <a href="/alem-dos-dados/"{% if page.url == '/alem-dos-dados/' %} aria-current="page"{% endif %}>Além dos dados</a><a href="/#contato">Contato</a>
+  </nav>
+</div></header>
+<main id="conteudo">{{ content | safe }}</main>
+<footer><div class="container footer-container"><p>© Caio Matos</p><a href="/">Voltar ao início ↑</a></div></footer>
+<script src="/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+---
+layout: base.njk
+---
+<section class="v2-hero"><div class="container">
+  <a href="/artigos/" class="back-link">← Todos os artigos</a>
+  <p class="section-label">{{ category }}</p>
+  <h1>{{ title }}<span>.</span></h1>
+  <p class="v2-lede">{{ description }}</p>
+  {% if date %}<p class="v2-note post-date"><time datetime="{{ date | isoDate }}">{{ date | displayDate }}</time></p>{% endif %}
+</div></section>
+<section class="section"><div class="container"><article class="v2-article">
+  {% if image %}<figure class="post-cover"><img src="{{ image }}" alt="{{ image_alt }}"></figure>{% endif %}
+  {{ content | safe }}
+  {% if repository or links.length %}
+  <aside class="v2-highlight" aria-label="Materiais de apoio"><h2>Materiais de apoio</h2><ul>
+    {% if repository %}<li><a href="{{ repository }}" target="_blank" rel="noopener noreferrer">Ver repositório no GitHub</a></li>{% endif %}
+    {% for link in links %}<li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.label }}</a></li>{% endfor %}
+  </ul></aside>
+  {% endif %}
+</article></div></section>

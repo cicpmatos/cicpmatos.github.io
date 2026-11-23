@@ -1,0 +1,13 @@
+---
+layout: base.njk
+permalink: /alem-dos-dados/index.html
+title: Além dos dados
+description: Nem tudo que considero importante cabe em um currículo. Aqui também há espaço para o que leio, penso e pratico.
+---
+<section class="v2-hero"><div class="container"><a href="/" class="back-link">← Voltar ao início</a><p class="section-label">INTERESSES E REFLEXÕES</p><h1>Além dos dados<span>.</span></h1><p class="v2-lede">{{ description }}</p></div></section>
+<section class="section"><div class="container"><div class="v2-grid">
+<article class="v2-card"><span class="v2-kicker">FÉ E ESTUDOS</span><h2>Teologia</h2><p>Espaço dedicado a leituras, estudos bíblicos e reflexões teológicas.</p><div class="v2-label-list"><span>Leituras</span><span>Reflexões</span></div></article>
+<article class="v2-card"><span class="v2-kicker">ESTRATÉGIA E APRENDIZADO</span><h2>Xadrez</h2><p>Além de um hobby, o xadrez se tornou um projeto de dados: analiso minhas partidas, minha evolução e as características dos adversários.</p><div class="v2-links"><a href="/projetos/analise-xadrez.html">Explorar o dashboard de xadrez →</a><a href="/artigos/integracao-apis-xadrez.html">Ler o estudo de APIs →</a></div></article>
+<article class="v2-card"><span class="v2-kicker">CURIOSIDADE</span><h2>Livros e ideias</h2><p>Espaço para reunir leituras e outros assuntos que despertam meu interesse, sem a obrigação de transformá-los em conteúdo profissional.</p></article>
+</div></div></section>
+{% if collections.personal.length %}<section class="section"><div class="container"><div class="v2-section-heading"><h2>Textos pessoais</h2></div>{% set entries = collections.personal %}{% include 'cards.njk' %}</div></section>{% endif %}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Guia de publicação | Caio Matos</title>
+    <link rel="stylesheet" href="/admin/admin.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <header class="studio-header">
+      <a class="wordmark" href="/">Caio Matos<span> / estúdio</span></a>
+      <nav aria-label="Navegação do estúdio"><a href="/admin/">Abrir o estúdio</a><a href="/artigos/">Ver artigos ↗</a></nav>
+    </header>
+    <main class="guide" id="conteudo">
+      <p class="eyebrow">Guia de publicação</p>
+      <h1>Da ideia<br>ao seu próximo <span>post.</span></h1>
+      <p class="lead">Um passo a passo para escrever, revisar e publicar no site.</p>
+
+      <h2>1. Entre no editor</h2>
+      <p>Acesse <a href="/admin/">o estúdio</a>, clique em <strong>Abrir editor</strong> e entre com sua conta GitHub. O painel usa o login do GitHub, com a autenticação em dois fatores da sua conta. Quando uma senha for necessária, ela será pedida na página do próprio GitHub.</p>
+      <p>Se aparecer “Acesso aguardando ativação”, a integração de login ainda precisa ser concluída. O painel exibirá a opção de entrada assim que ela estiver pronta.</p>
+
+      <h2>2. Crie um post</h2>
+      <ol>
+        <li>Abra <strong>Artigos e histórias</strong> e escolha criar um novo post.</li>
+        <li>Preencha o título, o resumo e o tema. Use <strong>Pessoal</strong> para experiências, reflexões e aprendizados fora do conteúdo técnico.</li>
+        <li>Escolha um endereço único, como <code>python-ambientes-virtuais</code>. O artigo ficará em <code>/artigos/python-ambientes-virtuais.html</code>. Depois de publicar, preserve esse endereço.</li>
+        <li>Escreva o texto. Você pode usar a barra do editor para títulos, listas, links, imagens e código, ou editar diretamente em Markdown.</li>
+        <li>Se quiser, adicione uma capa, a descrição da imagem, um repositório do GitHub e links de apoio.</li>
+      </ol>
+      <p>A <strong>data do post</strong> é a data mostrada no artigo. Ela não agenda a publicação: mesmo com uma data futura, o conteúdo pode entrar no ar quando você escolher publicar.</p>
+
+      <h2>3. Salve e revise</h2>
+      <p>Salve como rascunho. No fluxo editorial, o post passa pelas etapas <strong>Rascunho</strong>, <strong>Em revisão</strong> e <strong>Pronto</strong>. Você pode fechar o editor e retomar o trabalho depois de salvar.</p>
+      <p>A prévia do editor ajuda a conferir o conteúdo. Para ver a aparência final, use a prévia do site quando disponível. Revise os links, teste os exemplos e veja se o resumo explica bem o artigo.</p>
+      <aside class="notice">
+        <p><strong>Rascunho não significa privado.</strong> O site usa um repositório público: textos, imagens e versões salvas podem ser vistos no GitHub, mesmo antes de aparecerem na lista de artigos. Evite senhas, dados de clientes, dados pessoais sensíveis ou material que você ainda precisa manter confidencial.</p>
+      </aside>
+
+      <h2>4. Publique</h2>
+      <p>Quando a revisão estiver concluída, marque o post como pronto e escolha <strong>Publicar</strong>. Isso integra o texto à versão principal do site. A atualização automática gera o artigo, o índice e o mapa do site; pode levar alguns minutos para a nova versão ficar disponível.</p>
+      <p>Se houver alguma falha nessa atualização, a versão publicada anteriormente continua disponível. Confira a execução mais recente em <a href="https://github.com/cicpmatos/cicpmatos.github.io/actions" target="_blank" rel="noopener">Actions no GitHub</a> para saber se a publicação terminou.</p>
+
+      <h2>Uma estrutura simples para começar</h2>
+      <pre><code>Uma introdução curta: o que vamos resolver?
+
+## O problema
+Explique o contexto com um exemplo pequeno.
+
+## Passo a passo
+Mostre o código ou as etapas e explique as escolhas.
+
+## O que aprendi
+Conte o resultado, uma limitação e o próximo passo.</code></pre>
+      <p>Nos posts técnicos, use exemplos que o leitor consiga reproduzir. Nos pessoais, troque o passo a passo pela experiência, pelo que mudou e pelo que você quer explorar depois.</p>
+
+      <h2>Dúvidas comuns</h2>
+      <details>
+        <summary>Como incluir um código Python ou SQL?</summary>
+        <p>Insira um bloco de código pelo editor ou use três acentos graves no modo Markdown, seguidos de <code>python</code> ou <code>sql</code>. Feche o bloco com mais três acentos graves. Não inclua senhas ou credenciais reais nos exemplos.</p>
+      </details>
+      <details>
+        <summary>Como corrigir um post que já está no ar?</summary>
+        <p>Abra o post na coleção, faça a alteração, salve e percorra o fluxo de revisão e publicação. O endereço continua o mesmo se você mantiver o campo “Endereço do post”.</p>
+      </details>
+      <details>
+        <summary>Por que uma imagem precisa de descrição?</summary>
+        <p>A descrição permite que pessoas que usam leitores de tela compreendam a imagem. Em um gráfico, descreva a conclusão principal; em uma captura de tela, explique a informação relevante.</p>
+      </details>
+      <details>
+        <summary>O editor pode publicar automaticamente toda semana?</summary>
+        <p>O calendário semanal é um lembrete para escrever e publicar. Este painel publica quando você aciona “Publicar”; a data do artigo não funciona como um agendamento.</p>
+      </details>
+      <details>
+        <summary>Como encerrar o acesso?</summary>
+        <p>Use a opção <strong>Sair</strong> no menu do usuário ao terminar, principalmente em dispositivos compartilhados. Fechar a aba ou o navegador não encerra a sessão do editor. Para revogar a autorização, acesse as aplicações autorizadas nas configurações da sua conta GitHub.</p>
+      </details>
+    </main>
+  </body>
+</html>
