@@ -4,6 +4,18 @@ const ALLOWED_GITHUB_ID = 92313515;
 const COOKIE_NAME = '__Host-cms-oauth';
 const SESSION_MS = 10 * 60 * 1000;
 const encoder = new TextEncoder();
+const SESSION_ERROR_CODES = new Set([
+  'callback_parameters', 'cookie_missing', 'cookie_ambiguous', 'cookie_invalid',
+  'session_expired', 'session_future', 'state_mismatch',
+]);
+
+// Only fixed labels may reach the browser; never serialize the underlying error.
+class SessionValidationError extends Error {
+  constructor(code) {
+    super('Invalid login session');
+    this.code = code;
+  }
+}
 
 function base64url(bytes) {
   return btoa(String.fromCharCode(...new Uint8Array(bytes)))
@@ -74,6 +86,14 @@ function uniqueAllowedParameters(params, allowed) {
   return true;
 }
 
+function uniqueCallbackParameters(params) {
+  // RFC 6749 §4.1.2 requires clients to ignore unrecognized response parameters.
+  // Only these fields are consumed; extras never select an endpoint or reach
+  // the token exchange, popup or diagnostics. Ambiguous consumed fields fail.
+  const consumed = ['code', 'state', 'error', 'error_description', 'error_uri', 'provider'];
+  return consumed.every(key => params.getAll(key).length <= 1);
+}
+
 function additionalData(config) {
   return encoder.encode(`cms-oauth-v1|${config.origin}|${SITE_ORIGIN}|${config.clientId}`);
 }
@@ -95,7 +115,8 @@ async function sealSession(session, config) {
 async function readSession(request, config, now) {
   const matches = (request.headers.get('Cookie') || '').split(';')
     .map(part => part.trim()).filter(part => part.startsWith(`${COOKIE_NAME}=`));
-  if (matches.length !== 1) throw new Error('Missing or ambiguous session');
+  if (matches.length === 0) throw new SessionValidationError('cookie_missing');
+  if (matches.length !== 1) throw new SessionValidationError('cookie_ambiguous');
   const encoded = matches[0].slice(COOKIE_NAME.length + 1);
   if (encoded.length > 2048) throw new Error('Invalid session');
   const pieces = encoded.split('.');
@@ -110,10 +131,12 @@ async function readSession(request, config, now) {
   const session = JSON.parse(new TextDecoder().decode(plaintext));
   if (session.version !== 1 || session.provider !== 'github' || session.origin !== SITE_ORIGIN ||
       !/^[A-Za-z0-9_-]{43}$/.test(session.state) || !/^[A-Za-z0-9_-]{43}$/.test(session.verifier) ||
-      !Number.isSafeInteger(session.createdAt) || session.createdAt > now ||
-      session.expiresAt !== session.createdAt + SESSION_MS || now >= session.expiresAt) {
+      !Number.isSafeInteger(session.createdAt) ||
+      session.expiresAt !== session.createdAt + SESSION_MS) {
     throw new Error('Expired or invalid session');
   }
+  if (session.createdAt > now) throw new SessionValidationError('session_future');
+  if (now >= session.expiresAt) throw new SessionValidationError('session_expired');
   return session;
 }
 
@@ -215,12 +238,19 @@ async function callback(request, url, config, now, fetchImpl) {
   const params = url.searchParams;
   let session;
   try {
-    if (!uniqueAllowedParameters(params, ['code', 'state', 'error', 'error_description', 'error_uri', 'provider']) ||
-        (params.has('provider') && params.get('provider') !== 'github')) throw new Error('Invalid callback');
+    if (!uniqueCallbackParameters(params) ||
+        (params.has('provider') && params.get('provider') !== 'github')) {
+      throw new SessionValidationError('callback_parameters');
+    }
     session = await readSession(request, config, now);
-    if (!equalState(params.get('state'), session.state)) throw new Error('Invalid state');
-  } catch {
-    return plain('Sessão de login inválida ou expirada. Volte ao painel e tente novamente.', 400, { 'Set-Cookie': cookie('', 0) });
+    if (!equalState(params.get('state'), session.state)) throw new SessionValidationError('state_mismatch');
+  } catch (error) {
+    const code = error instanceof SessionValidationError && SESSION_ERROR_CODES.has(error.code)
+      ? error.code : 'cookie_invalid';
+    return plain(`Sessão de login inválida ou expirada. Volte ao painel e tente novamente.\nCódigo de diagnóstico: ${code}.`, 400, {
+      'Set-Cookie': cookie('', 0),
+      'X-CMS-Login-Error': code,
+    });
   }
   if (params.has('error')) {
     return popupResult({ message: 'A autorização no GitHub não foi concluída. Tente novamente pelo painel.' }, false, 401);
