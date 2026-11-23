@@ -12,14 +12,16 @@ O repositório é público: rascunhos, imagens e histórico de commits podem ser
 
 ## Ativação necessária
 
-O código está preparado, mas o login permanece desabilitado até existir um serviço OAuth configurado. É necessário:
+O workflow já configura o painel com o serviço de login `https://caiomatos-cms-auth.cicpmatos.workers.dev`. Não é necessário criar uma variável no GitHub para usar esse endereço. Antes de publicar a migração, é necessário:
 
 1. Seguir [auth/README.md](auth/README.md) para cadastrar um OAuth App dedicado no GitHub, publicar o Worker na conta Cloudflare e salvar os segredos diretamente lá.
-2. Em **Settings → Secrets and variables → Actions → Variables**, definir `CMS_AUTH_ORIGIN` com a origem HTTPS real do Worker. Esse endereço é público; não é um segredo. Não colocar Client Secret ou chave de sessão nessa variável.
-3. Em **Settings → Pages → Build and deployment**, selecionar **GitHub Actions** como fonte. Só então integrar a mudança de infraestrutura à `main` e acompanhar o workflow **Validar e publicar site**. A publicação utiliza `_site/`, não os arquivos-fonte.
+2. Em **Settings → Pages → Build and deployment**, selecionar **GitHub Actions** como fonte. Faça isso antes de integrar a migração: a publicação utiliza `_site/`, não os arquivos-fonte.
+3. Integrar a mudança de infraestrutura à `main` e acompanhar o workflow **Validar e publicar site**. Antes de enviar o site para publicação, ele verifica que o painel foi gerado com o login habilitado e a origem configurada.
 4. Testar o login no domínio canônico, salvar um rascunho, conferir o resultado da validação e publicar um texto de teste aprovado. O login não é habilitado em domínios de prévia ou em localhost.
 
-Sem `CMS_AUTH_ORIGIN`, o site público é gerado normalmente e o painel mostra **Acesso aguardando ativação**. Um valor malformado faz a compilação falhar. Não se deve considerar o login de produção validado antes do teste real com GitHub e Cloudflare.
+Para substituir o endereço padrão, defina opcionalmente a variável de repositório `CMS_AUTH_ORIGIN` em **Settings → Secrets and variables → Actions → Variables**. Use somente a origem HTTPS real do novo serviço, sem caminho ou parâmetros, e ajuste o Worker e o callback do OAuth App de acordo. A variável tem prioridade sobre o endereço padrão; ausente ou vazia, usa o endereço acima. Esse endereço é público: nunca coloque Client Secret ou chave de sessão nessa variável. Um valor malformado faz a compilação falhar.
+
+A verificação do workflow confirma a configuração gerada, não a autenticação real. Não se deve considerar o login de produção validado antes do teste com GitHub e Cloudflare.
 
 ## Desenvolvimento e validação
 
@@ -32,6 +34,8 @@ pnpm dev
 ```
 
 O site local fica em `http://localhost:8080`. `pnpm check` compila, testa a autenticação e o processamento de posts, verifica os links locais e a preservação dos dashboards. Não utiliza credenciais reais. O workflow valida pull requests sem implantar; só a `main` é publicada. Cada validação disponibiliza um artefato `site-preview` com o site completo.
+
+Em builds locais sem `CMS_AUTH_ORIGIN`, o site público é gerado normalmente e o painel mostra **Acesso aguardando ativação**. O endereço padrão é aplicado apenas pelo workflow do GitHub; a verificação obrigatória de login habilitado também fica restrita ao workflow.
 
 ## Estrutura
 
