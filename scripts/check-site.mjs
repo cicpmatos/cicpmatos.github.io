@@ -41,6 +41,11 @@ assert.match(article, /RemoverNulos/);
 assert.match(article, /Sigla País/);
 assert.match(article, /api\.worldbank\.org/);
 const sitemap = await readFile('_site/sitemap.xml', 'utf8');
+for (const file of ['index.html', 'tecnologias/index.html', 'videos/index.html', 'publicacoes/index.html', 'artigos/index.html', 'alem-dos-dados/index.html', 'artigos/integracao-apis-xadrez.html']) {
+  const html = await readFile(`_site/${file}`, 'utf8');
+  const footer = html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/)?.[1] || '';
+  assert.equal([...footer.matchAll(/<a href="\/admin\/">Área do autor<\/a>/g)].length, 1, `Acesso do autor ausente ou duplicado: ${file}`);
+}
 assert.match(sitemap, /\/artigos\/integracao-apis-xadrez\.html/);
 assert.ok(!sitemap.includes('/admin/'));
 const runtime = JSON.parse(await readFile('_site/admin/runtime-config.json', 'utf8'));

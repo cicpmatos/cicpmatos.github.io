@@ -24,6 +24,7 @@ test('um novo Markdown vira post, índices e sitemap; conteúdo perigoso bloquei
     assert.ok(!post.includes('<script>alert'));
     assert.match(post, /26 de dezembro de 2026/);
     assert.match(post, /Ver repositório no GitHub/);
+    assert.match(post, /<footer>[\s\S]*<a href="\/admin\/">Área do autor<\/a>[\s\S]*<\/footer>/);
     assert.match(post, /https:\/\/www.11ty.dev\//);
     for (const file of ['artigos/index.html', 'alem-dos-dados/index.html', 'sitemap.xml']) {
       assert.match(await readFile(join(fixture, '_site', file), 'utf8'), /\/artigos\/nota-pessoal\.html/);
