@@ -1,0 +1,41 @@
+---
+layout: base.njk
+permalink: /videos/index.html
+title: Vídeos
+description: Tutoriais e demonstrações de Python, PostgreSQL, Power BI e dados, com reprodução aqui no site.
+---
+<section class="v2-hero"><div class="container">
+  <a href="/" class="back-link">← Voltar ao início</a>
+  <p class="section-label">EXPLICAÇÕES EM VÍDEO</p>
+  <h1>Uma ideia.<br>Na prática<span>.</span></h1>
+  <p class="v2-lede">Tutoriais, demonstrações e aprendizados sobre Python, PostgreSQL, Power BI e dados. Dê o play e acompanhe por aqui.</p>
+</div></section>
+<section class="section"><div class="container">
+  {% if collections.videos.length %}
+  <div class="v2-section-heading"><div><p class="section-label">VÍDEOS PUBLICADOS</p><h2>Do problema à solução.</h2></div></div>
+  <p class="v2-note video-privacy">Players do YouTube. Ao carregar ou reproduzir um vídeo, você se conecta ao YouTube.</p>
+  <div class="video-grid">
+    {% for video in collections.videos %}
+    <article class="video-card" aria-labelledby="video-{{ video.data.slug }}">
+      {% set videoId = video.data.youtube_url | youtubeVideoId %}{% set videoTitle = video.data.title %}
+      {% include 'video-player.njk' %}
+      <div class="video-card-content">
+        <p class="v2-kicker">{{ video.data.category }}</p>
+        <h2 id="video-{{ video.data.slug }}"><a href="{{ video.url }}">{{ video.data.title }}</a></h2>
+        {% if video.data.date %}<p class="v2-note"><time datetime="{{ video.data.date | isoDate }}">{{ video.data.date | displayDate }}</time></p>{% endif %}
+        <p>{{ video.data.description }}</p>
+        <div class="video-card-links"><a href="{{ video.url }}">Detalhes e materiais →</a><a href="https://www.youtube.com/watch?v={{ videoId }}" target="_blank" rel="noopener noreferrer">YouTube ↗</a></div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="video-empty">
+    <svg class="video-empty-icon" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><rect x="2" y="10" width="60" height="44" rx="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M26 22 43 32 26 42Z" fill="currentColor"/></svg>
+    <p class="v2-kicker">EM BREVE</p>
+    <h2>Os próximos aprendizados<br>também vêm em vídeo.</h2>
+    <p>Ainda não há vídeos publicados. Quando chegarem, você poderá assistir nesta página e explorar os exemplos e materiais de apoio.</p>
+    <a class="video-empty-link" href="/artigos/">Enquanto isso, explore os artigos →</a>
+  </div>
+  {% endif %}
+</div></section>

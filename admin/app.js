@@ -1,5 +1,6 @@
 import { createCmsConfig } from "./config.js";
 import { installLoginFeedback } from "./login-feedback.js";
+import { registerVideoWidget } from "./video-widget.js";
 
 const title = document.querySelector("#status-title");
 const description = document.querySelector("#status-description");
@@ -59,6 +60,7 @@ try {
         if (!window.CMS?.init) throw new Error("Editor não carregado.");
         document.querySelector("#editor-shell").hidden = false;
         window.CMS.registerPreviewStyle("/admin/preview.css");
+        registerVideoWidget(window.CMS, window.createClass, window.h);
         window.CMS.init({ config });
         document.querySelector("#conteudo").hidden = true;
         document.querySelector(".studio-header").hidden = true;

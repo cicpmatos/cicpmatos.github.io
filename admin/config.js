@@ -122,6 +122,43 @@ export function createCmsConfig(authOrigin) {
           },
         ],
       },
+      {
+        name: "videos",
+        label: "Vídeos",
+        label_singular: "Vídeo",
+        description: "Cadastre o link do YouTube para exibir um player na seção Vídeos. Rascunhos no GitHub são públicos.",
+        folder: "content/videos",
+        create: true,
+        delete: false,
+        extension: "md",
+        format: "frontmatter",
+        slug: "{{fields.slug}}",
+        summary: "{{title}} · {{category}}",
+        sortable_fields: ["title", "date", "category"],
+        view_groups: [{ label: "Tema", field: "category" }],
+        fields: [
+          { label: "Título", name: "title", widget: "string", hint: "O assunto ou a pergunta que o vídeo resolve." },
+          { label: "Descrição", name: "description", widget: "text", hint: "Um resumo curto para acompanhar o player na lista de vídeos." },
+          {
+            label: "Endereço do vídeo no site", name: "slug", widget: "string",
+            pattern: ["^(?!index$)[a-z0-9]+(?:-[a-z0-9]+)*$", "Use letras minúsculas sem acento, números e hífens. O nome index é reservado."],
+            hint: "Exemplo: python-primeiro-csv. Depois de publicar, preserve este endereço.",
+          },
+          { label: "Tema", name: "category", widget: "select", options: ["Python", "PostgreSQL", "Power BI", "Engenharia de Dados", "Pessoal"] },
+          {
+            label: "Link do YouTube", name: "youtube_url", widget: "youtube-url",
+            hint: "Cole o endereço de Compartilhar no YouTube. O vídeo precisa permitir incorporação. O player aparece no site após publicar; parâmetros de tempo e compartilhamento são ignorados.",
+          },
+          {
+            label: "Data do vídeo", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false,
+            default: "{{now}}", required: false, hint: "Data exibida no site. Não agenda a publicação automática.",
+          },
+          {
+            label: "Notas e materiais de apoio", name: "body", widget: "markdown", required: false,
+            hint: "Opcional: explicações, código e links para artigos ou repositórios. Aparecem na página individual do vídeo. HTML não é executado.",
+          },
+        ],
+      },
     ],
   };
 }

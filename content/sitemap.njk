@@ -10,4 +10,7 @@ eleventyExcludeFromCollections: true
 {% for post in collections.posts %}
   <url><loc>{{ site.url }}{{ post.url }}</loc></url>
 {% endfor %}
+{% for video in collections.videos %}
+  <url><loc>{{ site.url }}{{ video.url }}</loc></url>
+{% endfor %}
 </urlset>

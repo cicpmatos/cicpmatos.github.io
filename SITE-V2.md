@@ -1,6 +1,6 @@
 # Site pessoal, versão 2 — registro histórico
 
-> A versão 2 já está na `main`. A atualização para posts Markdown, editor e autenticação está documentada no [README.md](README.md). As instruções manuais abaixo descrevem a estrutura anterior e não devem ser usadas para criar novos posts após essa atualização.
+> A versão 2 já está na `main`. A atualização para posts e vídeos Markdown, editor e autenticação está documentada no [README.md](README.md). As instruções manuais abaixo descrevem a estrutura anterior e não devem ser usadas para criar novos posts ou vídeos após essa atualização.
 
 O objetivo desta versão é ampliar o portfólio para um site pessoal vivo, sem substituir os três dashboards nem alterar os respectivos links.
 

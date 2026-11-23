@@ -9,7 +9,7 @@ test('um novo Markdown vira post, índices e sitemap; conteúdo perigoso bloquei
   const source = resolve(import.meta.dirname, '..');
   const fixture = await mkdtemp(join(tmpdir(), 'caio-publishing-test-'));
   try {
-    for (const path of ['content', 'lib', 'scripts', 'admin', 'eleventy.config.js', 'package.json', 'index.html', 'style.css', 'site-v2.css', 'script.js', 'CNAME', 'robots.txt', 'assets', 'projetos', 'tecnologias', 'videos', 'publicacoes']) {
+    for (const path of ['content', 'lib', 'scripts', 'admin', 'eleventy.config.js', 'package.json', 'index.html', 'style.css', 'site-v2.css', 'script.js', 'CNAME', 'robots.txt', 'assets', 'projetos', 'tecnologias', 'publicacoes']) {
       await cp(join(source, path), join(fixture, path), { recursive: true });
     }
     await symlink(join(source, 'node_modules'), join(fixture, 'node_modules'), 'dir');
