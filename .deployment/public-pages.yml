@@ -12,17 +12,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     if: github.ref == 'refs/heads/main' && github.repository_id == '1469475632' && !github.event.repository.private
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -36,9 +31,25 @@ jobs:
           test ! -d auth
           test ! -f package.json
           test -z "$(find . -path './.git' -prune -o -not -type f -not -type d -print -quit)"
-      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
           path: .
+          name: github-pages
+
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.repository_id == '1469475632' && !github.event.repository.private
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
       - uses: actions/deploy-pages@v4
         id: deployment
+        with:
+          artifact_name: github-pages
