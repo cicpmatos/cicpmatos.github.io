@@ -15,15 +15,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     env:
       CMS_AUTH_ORIGIN: ${{ vars.CMS_AUTH_ORIGIN || 'https://caiomatos-cms-auth.cicpmatos.workers.dev' }}
-      CMS_AUTH_MODE: ${{ vars.CMS_AUTH_MODE || 'oauth' }}
-      CMS_REPOSITORY: cicpmatos/cicpmatos.github.io
     steps:
       - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -31,7 +26,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - run: node scripts/check-public-output.mjs
       - name: Conferir ativação do painel
         run: |
           node --input-type=module <<'NODE'
@@ -41,46 +35,20 @@ jobs:
           const expectedOrigin = new URL(process.env.CMS_AUTH_ORIGIN).origin;
           assert.equal(runtime.enabled, true, 'O painel deve estar habilitado antes da publicação.');
           assert.equal(runtime.authOrigin, expectedOrigin, 'O painel deve usar a origem de login configurada.');
-          if (process.env.CMS_AUTH_MODE === 'github_app') {
-            assert.equal(runtime.authMode, 'github_app', 'O painel deve usar a integração de acesso limitado.');
-          }
           console.log(`Painel habilitado com o serviço de login ${expectedOrigin}.`);
           NODE
       - uses: actions/upload-artifact@v4
         with:
           name: site-preview
           path: _site/
-          include-hidden-files: true
           retention-days: 7
       - uses: actions/upload-pages-artifact@v4
-        if: github.ref == 'refs/heads/main' && !github.event.repository.private
+        if: github.ref == 'refs/heads/main'
         with:
           path: _site/
-      - name: Exigir ativação explícita da publicação privada
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.event.repository.private
-        env:
-          ENABLED: ${{ vars.PUBLISH_PUBLIC_SITE }}
-        run: |
-          test "$ENABLED" = "true"
-          test "$CMS_AUTH_MODE" = "github_app"
-      - name: Autorizar somente atualização da versão pública
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.event.repository.private && vars.PUBLISH_PUBLIC_SITE == 'true'
-        uses: actions/create-github-app-token@v3
-        id: public-token
-        with:
-          client-id: ${{ vars.SITE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.SITE_APP_PRIVATE_KEY }}
-          owner: cicpmatos
-          repositories: caiomatos-site-publico
-          permission-contents: write
-      - name: Enviar somente arquivos finais aprovados
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.event.repository.private && vars.PUBLISH_PUBLIC_SITE == 'true'
-        env:
-          PUBLIC_SITE_TOKEN: ${{ steps.public-token.outputs.token }}
-        run: node scripts/publish-static.mjs
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !github.event.repository.private
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:

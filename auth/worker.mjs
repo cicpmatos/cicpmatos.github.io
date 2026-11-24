@@ -17,13 +17,6 @@ class SessionValidationError extends Error {
   }
 }
 
-class AppValidationError extends Error {
-  constructor(code) {
-    super('GitHub App access validation failed');
-    this.code = code;
-  }
-}
-
 function base64url(bytes) {
   return btoa(String.fromCharCode(...new Uint8Array(bytes)))
     .replaceAll('+', '-').replaceAll('/', '_').replaceAll('=', '');
@@ -46,43 +39,17 @@ function getConfig(env) {
       origin.username || origin.password || origin.origin === SITE_ORIGIN) {
     throw new Error('Invalid public origin');
   }
-  // The migration is opt-in. Deploying this code alone keeps the public OAuth
-  // app working; an unknown mode must never silently widen its permissions.
-  const mode = env.OAUTH_MODE ?? 'oauth_public';
-  if (!['oauth_public', 'github_app'].includes(mode)) throw new Error('Invalid OAuth mode');
-  // Stage the new credential without replacing the active OAuth App secret.
-  // Each mode requires its own secret; never fall back across app boundaries.
-  const clientSecret = mode === 'github_app' ? env.GITHUB_APP_CLIENT_SECRET : env.OAUTH_CLIENT_SECRET;
   if (typeof env.OAUTH_CLIENT_ID !== 'string' || !/^[A-Za-z0-9._-]{8,128}$/.test(env.OAUTH_CLIENT_ID) ||
-      typeof clientSecret !== 'string' || clientSecret.length < 20 ||
+      typeof env.OAUTH_CLIENT_SECRET !== 'string' || env.OAUTH_CLIENT_SECRET.length < 20 ||
       typeof env.SESSION_SECRET !== 'string' || unbase64url(env.SESSION_SECRET).length !== 32) {
     throw new Error('Missing configuration');
-  }
-  let appId;
-  let repositoryId;
-  let repository;
-  if (mode === 'github_app') {
-    for (const value of [env.GITHUB_APP_ID, env.CMS_REPOSITORY_ID]) {
-      if (typeof value !== 'string' || !/^[1-9][0-9]{0,15}$/.test(value) || !Number.isSafeInteger(Number(value))) {
-        throw new Error('Invalid GitHub App identifiers');
-      }
-    }
-    if (typeof env.CMS_REPOSITORY !== 'string' ||
-        !/^cicpmatos\/[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/.test(env.CMS_REPOSITORY)) {
-      throw new Error('Invalid CMS repository');
-    }
-    appId = Number(env.GITHUB_APP_ID);
-    repositoryId = Number(env.CMS_REPOSITORY_ID);
-    repository = env.CMS_REPOSITORY;
   }
   return {
     origin: origin.origin,
     clientId: env.OAUTH_CLIENT_ID,
-    clientSecret,
+    clientSecret: env.OAUTH_CLIENT_SECRET,
     sessionSecret: env.SESSION_SECRET,
     callback: `${origin.origin}/callback`,
-    mode, appId, repositoryId, repository,
-    authorizationScope: mode === 'github_app' ? 'offline_access' : 'public_repo',
   };
 }
 
@@ -128,10 +95,7 @@ function uniqueCallbackParameters(params) {
 }
 
 function additionalData(config) {
-  const legacy = `cms-oauth-v1|${config.origin}|${SITE_ORIGIN}|${config.clientId}`;
-  return encoder.encode(config.mode === 'github_app'
-    ? `${legacy}|github_app|${config.appId}|${config.repositoryId}|${config.repository}`
-    : legacy);
+  return encoder.encode(`cms-oauth-v1|${config.origin}|${SITE_ORIGIN}|${config.clientId}`);
 }
 
 async function sessionKey(config) {
@@ -248,9 +212,6 @@ function authorizationFailure(code, status = 502) {
     oauth_scope: 'As permissões do aplicativo são diferentes das esperadas. Revogue sua autorização antiga no GitHub e entre novamente.',
     github_identity_failed: 'Não foi possível confirmar sua conta no GitHub. Tente novamente.',
     github_account_denied: 'Esta conta do GitHub não tem acesso ao painel. Entre com a conta cicpmatos.',
-    github_app_access: 'Não foi possível confirmar a instalação restrita do aplicativo do painel. A configuração precisa ser verificada.',
-    github_app_permissions: 'As permissões do aplicativo do painel são diferentes das esperadas. A configuração precisa ser verificada.',
-    github_repository_denied: 'O acesso do painel precisa estar limitado ao repositório privado do site. A configuração precisa ser verificada.',
   };
   const safeCode = Object.hasOwn(messages, code) ? code : 'oauth_exchange_failed';
   const response = popupResult({message: `${messages[safeCode]} Código de diagnóstico: ${safeCode}.`, code: safeCode}, false, status);
@@ -263,7 +224,7 @@ async function authorize(request, url, config, now) {
   const requestOrigin = request.headers.get('Origin');
   if (!uniqueAllowedParameters(params, ['provider', 'site_id', 'scope', 'login']) ||
       params.get('provider') !== 'github' || params.get('site_id') !== SITE_HOST ||
-      (params.has('scope') && params.get('scope') !== config.authorizationScope) ||
+      (params.has('scope') && params.get('scope') !== 'public_repo') ||
       (params.has('login') && params.get('login') !== 'true') ||
       (requestOrigin !== null && requestOrigin !== SITE_ORIGIN)) {
     return plain('Solicitação de acesso inválida. Abra o login pelo painel do site.', 400);
@@ -284,7 +245,7 @@ async function authorize(request, url, config, now) {
   github.search = new URLSearchParams({
     client_id: config.clientId,
     redirect_uri: config.callback,
-    scope: config.authorizationScope,
+    scope: 'public_repo',
     state: session.state,
     code_challenge: base64url(await crypto.subtle.digest('SHA-256', encoder.encode(session.verifier))),
     code_challenge_method: 'S256',
@@ -295,57 +256,6 @@ async function authorize(request, url, config, now) {
     Location: github.href,
     'Set-Cookie': cookie(await sealSession(session, config)),
   });
-}
-
-async function validateGitHubAppAccess(accessToken, config, fetchImpl) {
-  const read = async (path, errorCode) => {
-    try {
-      const response = await fetchImpl(`https://api.github.com${path}`, {
-        redirect: 'manual',
-        signal: AbortSignal.timeout(10000),
-        headers: {
-          Accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${accessToken}`,
-          'User-Agent': 'caiomatos-cms-oauth',
-          'X-GitHub-Api-Version': '2026-03-10',
-        },
-      });
-      // Do not follow redirects or silently approve a truncated inventory.
-      if (response.status !== 200 || response.headers.has('Link')) throw new Error('Unexpected API response');
-      return await response.json();
-    } catch {
-      throw new AppValidationError(errorCode);
-    }
-  };
-  const inventory = await read('/user/installations?per_page=100', 'github_app_access');
-  if (inventory?.total_count !== 1 || !Array.isArray(inventory.installations) || inventory.installations.length !== 1) {
-    throw new AppValidationError('github_app_access');
-  }
-  const installation = inventory.installations[0];
-  if (!Number.isSafeInteger(installation?.id) || installation.id <= 0 ||
-      installation.app_id !== config.appId || installation.account?.id !== ALLOWED_GITHUB_ID ||
-      installation.repository_selection !== 'selected' || installation.suspended_at !== null) {
-    throw new AppValidationError('github_app_access');
-  }
-  const permissions = installation.permissions;
-  const expectedPermissions = { contents: 'write', pull_requests: 'write', metadata: 'read' };
-  if (!permissions || Object.keys(permissions).length !== Object.keys(expectedPermissions).length ||
-      !Object.entries(expectedPermissions).every(([key, value]) => permissions[key] === value)) {
-    throw new AppValidationError('github_app_permissions');
-  }
-  // GitHub ignores repository_id when the app/user cannot access that repo.
-  // Consequently, its presence in the exchange is not enough: independently
-  // require that the resulting token can see exactly the intended private repo.
-  const repositories = await read(`/user/installations/${installation.id}/repositories?per_page=100`, 'github_repository_denied');
-  if (repositories?.total_count !== 1 || !Array.isArray(repositories.repositories) || repositories.repositories.length !== 1) {
-    throw new AppValidationError('github_repository_denied');
-  }
-  const repository = repositories.repositories[0];
-  if (repository?.id !== config.repositoryId || repository.full_name !== config.repository ||
-      repository.owner?.id !== ALLOWED_GITHUB_ID || repository.private !== true ||
-      repository.permissions?.push !== true || repository.archived !== false || repository.disabled !== false) {
-    throw new AppValidationError('github_repository_denied');
-  }
 }
 
 async function callback(request, url, config, now, fetchImpl) {
@@ -388,7 +298,6 @@ async function callback(request, url, config, now, fetchImpl) {
         code,
         redirect_uri: config.callback,
         code_verifier: session.verifier,
-        ...(config.mode === 'github_app' ? { repository_id: String(config.repositoryId) } : {}),
       }).toString(),
     });
     if (tokenResponse.status >= 300 && tokenResponse.status < 400) {
@@ -416,16 +325,7 @@ async function callback(request, url, config, now, fetchImpl) {
       throw new Error('Invalid token');
     }
     failureCode = 'oauth_scope';
-    if (config.mode === 'github_app') {
-      // GitHub App permissions are registered on the app, not OAuth scopes.
-      // offline_access forces an expiring user token; refresh credentials are
-      // intentionally discarded, never stored or returned to the browser.
-      if (token.scope !== '' || !token.access_token.startsWith('ghu_') || token.expires_in !== 28800) {
-        throw new Error('Unexpected GitHub App token');
-      }
-    } else if (token.scope !== 'public_repo') {
-      throw new Error('Unexpected scope');
-    }
+    if (token.scope !== 'public_repo') throw new Error('Unexpected scope');
     failureCode = 'github_identity_failed';
     const userResponse = await fetchImpl('https://api.github.com/user', {
       redirect: 'manual',
@@ -442,12 +342,9 @@ async function callback(request, url, config, now, fetchImpl) {
     if (user.id !== ALLOWED_GITHUB_ID) {
       return authorizationFailure('github_account_denied', 403);
     }
-    if (config.mode === 'github_app') {
-      await validateGitHubAppAccess(token.access_token, config, fetchImpl);
-    }
     return popupResult({ token: token.access_token, provider: 'github' }, true);
-  } catch (error) {
-    return authorizationFailure(error instanceof AppValidationError ? error.code : failureCode);
+  } catch {
+    return authorizationFailure(failureCode);
   }
 }
 
