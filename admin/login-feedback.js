@@ -15,6 +15,9 @@ const messages = {
   oauth_scope: 'Revogue a autorização antiga deste aplicativo em GitHub → Settings → Applications e entre novamente.',
   github_identity_failed: 'Não foi possível confirmar sua conta no GitHub. Tente novamente.',
   github_account_denied: 'Entre com a conta cicpmatos, que é a conta autorizada deste painel.',
+  github_app_access: 'A instalação restrita do aplicativo do painel precisa ser verificada.',
+  github_app_permissions: 'As permissões do aplicativo do painel precisam ser corrigidas.',
+  github_repository_denied: 'O acesso do painel precisa ficar limitado ao repositório privado do site.',
 };
 
 export function readLoginError(event, authOrigin) {

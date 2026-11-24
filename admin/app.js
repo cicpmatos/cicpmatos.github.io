@@ -43,7 +43,13 @@ try {
   if (runtime.enabled !== true || !runtime.authOrigin) {
     showPending();
   } else {
-    const config = createCmsConfig(runtime.authOrigin);
+    const config = createCmsConfig(runtime.authOrigin, {
+      authMode: runtime.authMode ?? "oauth",
+      repository: runtime.repository ?? "cicpmatos/cicpmatos.github.io",
+    });
+    if (runtime.authMode === "github_app") {
+      document.querySelector(".privacy-note").textContent = "Os rascunhos ficam no repositório privado do site. Ao publicar, o texto, vídeo e materiais utilizados passam a ser públicos. Sua sessão de edição expira após oito horas; entre novamente quando necessário.";
+    }
     installLoginFeedback(runtime.authOrigin);
     title.textContent = "Entre com sua conta GitHub";
     description.textContent = "O acesso ao editor está reservado à conta autorizada do site. Sua senha será solicitada somente pelo GitHub, se necessário.";

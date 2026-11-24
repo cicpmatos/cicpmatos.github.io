@@ -1,5 +1,5 @@
 /** Public editor configuration. Credentials belong only in the OAuth service. */
-export function createCmsConfig(authOrigin) {
+export function createCmsConfig(authOrigin, { authMode = "oauth", repository = "cicpmatos/cicpmatos.github.io" } = {}) {
   const origin = new URL(authOrigin);
   if (
     origin.protocol !== "https:" ||
@@ -11,17 +11,27 @@ export function createCmsConfig(authOrigin) {
   ) {
     throw new Error("O serviço de acesso precisa de uma origem HTTPS válida.");
   }
+  if (!["oauth", "github_app"].includes(authMode) ||
+      typeof repository !== "string" || !/^cicpmatos\/[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/.test(repository)) {
+    throw new Error("A configuração do repositório do painel é inválida.");
+  }
+  const privateBackstage = authMode === "github_app";
+  const draftNotice = privateBackstage
+    ? "Os rascunhos ficam no repositório privado. Somente o conteúdo publicado é enviado ao site público."
+    : "Rascunhos no GitHub são públicos.";
 
   return {
     load_config_file: false,
     locale: "pt",
     backend: {
       name: "github",
-      repo: "cicpmatos/cicpmatos.github.io",
+      repo: repository,
       branch: "main",
       base_url: origin.origin,
       auth_endpoint: "auth",
-      auth_scope: "public_repo",
+      // Decap falls back to the broad `repo` scope when this value is empty.
+      // GitHub Apps use registered permissions; offline_access only forces expiry.
+      auth_scope: privateBackstage ? "offline_access" : "public_repo",
       site_domain: "caiomatos.com.br",
       squash_merges: true,
     },
@@ -37,7 +47,7 @@ export function createCmsConfig(authOrigin) {
         name: "posts",
         label: "Artigos e histórias",
         label_singular: "Post",
-        description: "Textos técnicos e pessoais. Salve como rascunho, revise e publique quando estiver pronto. Rascunhos no GitHub são públicos.",
+        description: `Textos técnicos e pessoais. Salve como rascunho, revise e publique quando estiver pronto. ${draftNotice}`,
         folder: "content/posts",
         create: true,
         delete: false,
@@ -126,7 +136,7 @@ export function createCmsConfig(authOrigin) {
         name: "videos",
         label: "Vídeos",
         label_singular: "Vídeo",
-        description: "Cadastre o link do YouTube para exibir um player na seção Vídeos. Rascunhos no GitHub são públicos.",
+        description: `Cadastre o link do YouTube para exibir um player na seção Vídeos. ${draftNotice}`,
         folder: "content/videos",
         create: true,
         delete: false,

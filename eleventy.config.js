@@ -1,21 +1,15 @@
 import nunjucks from 'nunjucks';
-import { readdirSync } from 'node:fs';
 import { markdown, categories } from './lib/content.mjs';
 import { validateSources } from './lib/validate.mjs';
 import { youtubeVideoId } from './lib/videos.mjs';
+import { copyPublicFiles, staticPublicFiles } from './lib/public-output.mjs';
 
 export default function (config) {
   config.on('eleventy.before', validateSources);
   config.setLibrary('md', markdown);
   config.setLibrary('njk', new nunjucks.Environment(new nunjucks.FileSystemLoader('content/_includes'), { autoescape: true }));
-  for (const file of ['index.html', 'style.css', 'site-v2.css', 'script.js', 'CNAME', 'robots.txt', 'assets', 'projetos', 'tecnologias', 'publicacoes', 'admin']) {
-    config.addPassthroughCopy({ [file]: file });
-  }
-  for (const file of readdirSync('node_modules/decap-cms/dist')) {
-    if (file === 'decap-cms.js' || file.endsWith('.decap-cms.js') || file.endsWith('.wasm') || file === 'cms.css' || file === 'decap-cms.js.LICENSE.txt') {
-      config.addPassthroughCopy({ [`node_modules/decap-cms/dist/${file}`]: `admin/vendor/${file}` });
-    }
-  }
+  config.on('eleventy.after', () => copyPublicFiles());
+  for (const file of [...staticPublicFiles, 'assets/uploads']) config.addWatchTarget(file);
   config.addGlobalData('site', { title: 'Caio Matos', url: 'https://caiomatos.com.br' });
   config.addGlobalData('topics', categories);
   config.addCollection('posts', api => api.getFilteredByTag('post').sort((a, b) => {

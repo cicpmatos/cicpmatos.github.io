@@ -1,0 +1,44 @@
+name: Publicar arquivos finais
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-site-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.repository_id == '1469475632' && !github.event.repository.private
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Conferir pacote público
+        run: |
+          test -f index.html
+          test -f .nojekyll
+          test -f admin/runtime-config.json
+          test ! -d content
+          test ! -d auth
+          test ! -f package.json
+          test -z "$(find . -path './.git' -prune -o -not -type f -not -type d -print -quit)"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+      - uses: actions/deploy-pages@v4
+        id: deployment

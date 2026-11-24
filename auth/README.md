@@ -1,6 +1,6 @@
 # Login do painel — ativação
 
-Este serviço foi preparado para Cloudflare Workers; **a URL e as credenciais ainda precisam ser configuradas**. Não há endpoint de produção inventado nem segredo no repositório. O site continua público; o painel usa sua conta GitHub, com o segundo fator configurado nela, para autenticar.
+Este serviço usa Cloudflare Workers. A configuração pública fica em `wrangler.jsonc`; as credenciais permanecem nos segredos do Worker. O site continua público; o painel usa sua conta GitHub, com o segundo fator configurado nela, para autenticar. O modo padrão continua sendo o OAuth público existente. O modo GitHub App abaixo é uma migração explícita: publicar apenas o código não o ativa.
 
 ## O que o serviço permite
 
@@ -47,9 +47,37 @@ Se o Worker ainda não existir, o primeiro comando de cadastro de segredo pode o
 
 O backend padrão do Decap usa um token GitHub no navegador autenticado para salvar conteúdo e abrir pull requests. O **Client Secret permanece no servidor**, mas o token é persistido no armazenamento local do navegador e sobrevive ao fechamento da aba ou do navegador. Use **Sair** no CMS ao terminar em dispositivo compartilhado. Os dez minutos do cookie se referem somente à transação de login, não à sessão do editor. Use dispositivo confiável e mantenha o Decap atualizado.
 
-O escopo OAuth `public_repo` abrange os repositórios públicos aos quais sua conta tem acesso; ele **não se limita a este repositório**. Foi escolhido pela compatibilidade do fluxo OAuth do Decap. Se for necessário restringir a autorização a um único repositório, a próxima evolução deve usar um GitHub App com permissões e instalação específicas, com a adaptação correspondente do backend. O serviço recusa tokens com escopos diferentes ou mais amplos. Em caso de autorização antiga com escopo `repo`, revogue o aplicativo no GitHub e entre novamente.
+No modo padrão, o escopo OAuth `public_repo` abrange os repositórios públicos aos quais sua conta tem acesso; ele **não se limita a este repositório**. O serviço recusa tokens com escopos diferentes ou mais amplos. Em caso de autorização antiga com escopo `repo`, revogue o aplicativo no GitHub e entre novamente. A migração para o modo GitHub App restringe o acesso aos bastidores privados, conforme a seção seguinte.
 
-Este fluxo não solicita `offline_access` nem implementa refresh tokens. Se o OAuth App estiver configurado para expirar tokens, entre novamente quando a sessão expirar. Ao suspeitar de exposição, revogue o acesso em **GitHub → Settings → Applications → Authorized OAuth Apps**, gire o Client Secret e `SESSION_SECRET` e entre novamente. Girar `SESSION_SECRET` invalida logins em andamento; sair do CMS não revoga automaticamente a autorização do aplicativo no GitHub.
+O modo OAuth público não solicita `offline_access`. Se o OAuth App estiver configurado para expirar tokens, entre novamente quando a sessão expirar. Nenhum modo implementa renovação automática por refresh token. Ao suspeitar de exposição, revogue o acesso em **GitHub → Settings → Applications** (OAuth Apps ou GitHub Apps, conforme o modo), gire o Client Secret e `SESSION_SECRET` e entre novamente. Girar `SESSION_SECRET` invalida logins em andamento; sair do CMS não revoga automaticamente a autorização do aplicativo no GitHub.
+
+## Migração opt-in para bastidores privados
+
+Não basta trocar `public_repo` por `repo`: isso daria ao OAuth App acesso amplo aos repositórios privados. Use um **GitHub App dedicado**, privado, sem permissões de conta, com apenas as permissões de repositório `Contents: Read and write`, `Pull requests: Read and write` e `Metadata: Read-only`. Instale-o apenas nos repositórios escolhidos para o site. Não solicite permissão de administração, ações ou workflows para o painel.
+
+O login utiliza o **Client ID e Client Secret do GitHub App**, não a chave privada de instalação. Preserve o callback exato `PUBLIC_ORIGIN/callback` e a expiração de tokens de usuário. A chave privada usada por uma eventual automação de publicação deve ficar separada, nos segredos da automação; ela não é necessária neste Worker nem pode aparecer no navegador.
+
+Configure estas variáveis públicas no Worker somente no corte coordenado da migração:
+
+| Variável | Valor |
+| --- | --- |
+| `OAUTH_MODE` | `github_app` |
+| `GITHUB_APP_ID` | ID numérico real do novo GitHub App |
+| `OAUTH_CLIENT_ID` | Client ID real do novo GitHub App |
+| `CMS_REPOSITORY_ID` | `1382264698` (identidade estável do repositório de origem) |
+| `CMS_REPOSITORY` | `cicpmatos/cicpmatos.github.io` |
+
+Cadastre o segredo do novo GitHub App como **`GITHUB_APP_CLIENT_SECRET`**, separado do segredo antigo **`OAUTH_CLIENT_SECRET`**. Isso pode ser preparado antes do corte sem interromper o login ativo. Não substitua nem remova o segredo antigo nessa preparação. O modo `github_app` exige o segredo novo; o modo `oauth_public` exige o antigo, sem fallback entre eles. Mude `OAUTH_CLIENT_ID` para o Client ID novo somente no corte coordenado, junto com `OAUTH_MODE`. Nunca registre os valores dos segredos em arquivos.
+
+No build do site, `CMS_AUTH_MODE=github_app` deve gerar `authMode: "github_app"` em `runtime-config.json`, junto de `repository: "cicpmatos/cicpmatos.github.io"`. O editor usa `createCmsConfig(authOrigin, { authMode, repository })`; na ausência desses campos, mantém o modo OAuth público anterior. Não ative o modo novo enquanto a origem ainda for pública: a validação exige `private: true`. A declaração `secrets.required` do Wrangler também deve ser alinhada ao modo final antes de retirar o segredo antigo; durante a preparação, preserve a configuração de produção existente.
+
+O Worker solicita `offline_access` para exigir token de usuário com expiração de oito horas, troca o código com `repository_id` fixo e mantém estado/PKCE. Depois verifica o ID da conta, o ID do aplicativo, a instalação com seleção explícita, as três permissões exatas e o inventário acessível ao token. Esse inventário deve conter **somente** o repositório privado esperado, com permissão de escrita. O parâmetro `repository_id` pode ser ignorado pelo GitHub quando o repositório não está acessível; por isso a checagem independente é obrigatória. Inventário maior, paginado, inesperado ou indisponível bloqueia o login. Não relaxe essa proteção para contornar um erro de instalação.
+
+O token de usuário vai ao Decap; o refresh token é descartado. Após oito horas, salve o trabalho local pendente antes de sair e entrar novamente. O Decap 3.18 aceita o token pelo fluxo existente; `auth_scope` precisa ficar em `offline_access`, pois um valor vazio faz o Decap recorrer ao escopo amplo `repo`. O aplicativo pode ter uma instalação que inclua o destino público da automação, mas o token entregue ao painel deve continuar limitado à origem privada.
+
+Antes de encerrar a migração, valide ao vivo: entrada no painel, listagem de artigos, criação de um rascunho **privado**, alteração, revisão e publicação controlada. Testes simulados não substituem essa confirmação. Só então remova a configuração antiga e revogue a autorização do antigo OAuth App. Os testes em `auth/test/github-app.test.mjs` cobrem modo opt-in, privilégio mínimo, sessão vinculada à configuração, expiração, limites do inventário e não divulgação de segredos.
+
+Referências da migração: [tokens de usuário, PKCE e restrição por repositório](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-user-access-token-for-a-github-app), [expiração de tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/refreshing-user-access-tokens), [inventário de instalações e repositórios](https://docs.github.com/en/rest/apps/installations), [autenticação do Decap 3.18](https://github.com/decaporg/decap-cms/blob/decap-cms%403.18.0/packages/decap-cms-backend-github/src/AuthenticationPage.js).
 
 Mantenha logs de requisições e observabilidade desabilitados para estas rotas, pois o callback recebe um código temporário na URL. Os testes usam APIs simuladas e verificam criptografia, estado, expiração, PKCE, conta autorizada, protocolo do popup e caminhos de negação. O teste completo com GitHub e Cloudflare só pode ser feito após cadastrar as credenciais reais.
 
